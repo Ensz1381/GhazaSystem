@@ -12,11 +12,11 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/GhazaSystem.Api/GhazaSystem.Api.csproj", "src/GhazaSystem.Api/"]
-RUN dotnet restore "./src/GhazaSystem.Api/GhazaSystem.Api.csproj"
+COPY ["./GhazaSystem.Api/GhazaSystem.Api.csproj", "./GhazaSystem.Api/"]
+RUN dotnet restore "./GhazaSystem.Api/GhazaSystem.Api.csproj"
 COPY . .
-WORKDIR "/src/src/GhazaSystem.Api"
-RUN dotnet build "./GhazaSystem.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/GhazaSystem.Api"
+RUN dotnet build "./GhazaSystem.Api.csproj" -c $BUILD_CONFIGURATION  -o /app/build 
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish

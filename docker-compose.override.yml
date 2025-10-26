@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080 # به API می‌گوید روی پورت 8080 داخل کانتینر گوش دهد
+      - "DatabaseSettings:ConnectionString=Host=db;Port=5444;Database=GhazaSystemDb;Username=admin;Password=secret"
+      - "RabbitMqSettings:Host=rabbitmq"
+      - "RabbitMqSettings:Username=guest"
+      - "RabbitMqSettings:Password=guest"
