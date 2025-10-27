@@ -6,8 +6,8 @@ namespace GhazaSystem.Api.Infrastructure.Data
 {
     public class Daily_Food: BasiceData
     {
-        public Food food { get; set; }
-        public DateOnly Date { get; set; }
+        public required Food food { get; set; }
+        public required DateOnly Date { get; set; }
 
 
     }

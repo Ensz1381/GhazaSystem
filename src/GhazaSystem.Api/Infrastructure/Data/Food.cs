@@ -5,10 +5,10 @@ namespace GhazaSystem.Api.Infrastructure.Data;
 
 public class Food : BasiceData
 {
-    public string Name { get; set; }
-    public float Amount { get; set; }
-    public string Photos { get; set; }
-    public string Description { get; set; }
+    public required string Name { get; set; }
+    public required float Amount { get; set; }
+    public string? Photos { get; set; }
+    public string? Description { get; set; }
 
 }
 

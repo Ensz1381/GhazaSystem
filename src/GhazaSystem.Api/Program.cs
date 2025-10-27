@@ -1,5 +1,8 @@
 
 using GhazaSystem.Api.Infrastructure;
+using GhazaSystem.Api.Infrastructure.Data;
+using GhazaSystem.Api.Interfaces;
+using GhazaSystem.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -18,25 +21,7 @@ namespace GhazaSystem.Api
             builder.Services.AddDbContext<GhazaDbContext>(options =>
                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -45,6 +30,15 @@ namespace GhazaSystem.Api
 
             Console.WriteLine(Directory.GetCurrentDirectory());
 
+            builder.Services
+            .AddScoped<IInfrasructureRepository<User>, UserRepository>()
+            .AddScoped<IInfrasructureRepository<Login>, LoginRepository>()
+            .AddScoped<IInfrasructureRepository<Food>, FoodRepository>()
+            .AddScoped<IInfrasructureRepository<Food_Change>, Food_ChangeRepository>()
+            .AddScoped<IInfrasructureRepository<Daily_Food>, Daily_FoodRepository>();
+            
+
+            Console.WriteLine(Directory.GetCurrentDirectory());
             var app = builder.Build();
 
 
