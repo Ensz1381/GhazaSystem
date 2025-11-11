@@ -1,0 +1,81 @@
+﻿@rendermode InteractiveServer
+
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudSelect T="string" 
+                      @bind-Value="selectedFood" 
+                      Label="انتخاب غذا برای ویرایش" 
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Restaurant">
+                @foreach (var food in Foods)
+                {
+                    <MudSelectItem Value="@food">@food</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(selectedFood))
+            {
+                <MudDivider />
+
+                <MudTextField @bind-Value="newName" 
+                             Label="نام جدید غذا" 
+                             Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="newDescription" 
+                             Label="توضیحات جدید" 
+                             Variant="Variant.Outlined"
+                             Lines="3" />
+
+                <MudNumericField @bind-Value="newPrice" 
+                                Label="قیمت جدید (تومان)" 
+                                Variant="Variant.Outlined"
+                                Adornment="Adornment.End"
+                                AdornmentText="تومان" />
+
+                <MudFileUpload T="IBrowserFile" Accept="image/*">
+                    <ActivatorContent>
+                        <MudButton HtmlTag="label"
+                                  Variant="Variant.Outlined"
+                                  Color="Color.Primary"
+                                  StartIcon="@Icons.Material.Filled.CloudUpload"
+                                  >
+                            تغییر تصویر
+                        </MudButton>
+                    </ActivatorContent>
+                </MudFileUpload>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit" 
+                  Color="Color.Warning" 
+                  Variant="Variant.Filled"
+                  Disabled="@string.IsNullOrEmpty(selectedFood)">
+            ویرایش
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<string> Foods { get; set; } = new();
+
+    private string selectedFood = "";
+    private string newName = "";
+    private string newDescription = "";
+    private decimal newPrice = 0;
+
+    private void Submit()
+    {
+        if (string.IsNullOrEmpty(selectedFood)) return;
+        
+        // اینجا کد ارسال به API
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

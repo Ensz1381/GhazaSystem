@@ -28,17 +28,17 @@ namespace GhazaSystem.Api.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> Add(UserDTOs userdto)
+        public async Task<Response<User>> Add(UserDTOs userdto)
         {
             User user = new User()
             {
                 Id = new Guid(),
                 First_Name = userdto.First_Name,
                 Last_Name = userdto.Last_Name,
-                National_Code = userdto.National_Code,
+                National_Code = userdto.National_Code ,
             };
-            await userRepository.AddAsync(user);
-            return Ok();
+
+            return await userRepository.AddAsync(user);
         }
 
         [HttpGet("get/{id}")]
@@ -55,7 +55,23 @@ namespace GhazaSystem.Api.Controllers
             return Ok();
         }
 
+        [HttpGet("national-code/{code}")]
+        public async Task<User> GetById(long code)
+        {
+            var result = await userRepository.GetAllAsync();
+            var users = result.Data;
 
+            if (users != null) {
+                foreach (var user in users)
+                {
+                    if (user.National_Code == code)
+                    {
+                        return user;
+                    }
+                }
+            }
+            return new User() { Id = new Guid(),First_Name = "nuul",Last_Name="null",National_Code = 0 };
+        }
 
     }
 }

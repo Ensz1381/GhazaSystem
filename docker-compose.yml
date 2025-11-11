@@ -22,20 +22,40 @@ services:
       context: ./src
       dockerfile: GhazaSystem.Api/Dockerfile
     ports:
-      - "8001:8081"
+      #- "8001:8081"
       - "8000:8080" # پورت 8080 کانتینر را به پورت 8000 کامپیوتر شما وصل می‌کند
     depends_on:
       - db
     #  - rabbitmq
+
+
+
   frontend:
     build:
-      context: ./src/GhazaSystem.Front
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: ./Dockerfile
     ports:
-      - "1300:80"  # برای Blazor WebAssembly
+      - "7000:8080"
+      #- "7001:443" # برای Blazor WebAssembly
       #- "5001:5001"  # برای Blazor Server
     #depends_on:
+    environment:
+      # ⚠️ تغییر ۱: استفاده از ports برای Kestrel
+      - ASPNETCORE_HTTP_PORTS=8080
+      # ⚠️ تغییر ۲: تنظیم متغیر محیطی برای Public URL
+      # این متغیر به Kestrel کمک می‌کند تا URL های صحیح را تولید کند (بخصوص برای SignalR)
+      - ASPNETCORE_URLS=http://+:8080 
+      - ASPNETCORE_ENVIRONMENT=Development # یا Production
+      # اگر همچنان مشکل پابرجاست، این متغیر را اضافه کنید:
+      - DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+    volumes:
+      - Front:/app/wwwroot
+
+    depends_on:
+     - api
 
 volumes:
   postgres_data:
    driver: local
+  Front:
+   driver: local  

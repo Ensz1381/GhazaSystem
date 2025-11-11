@@ -1,0 +1,58 @@
+﻿@rendermode InteractiveServer
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudAlert Severity="Severity.Warning">
+                <MudText>⚠️ توجه: این عملیات قابل بازگشت نیست!</MudText>
+            </MudAlert>
+
+            <MudSelect T="string"
+                       @bind-Value="selectedFood"
+                       Label="انتخاب غذا برای حذف"
+                       Variant="Variant.Outlined"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Restaurant">
+                @foreach (var food in Foods)
+                {
+                    <MudSelectItem Value="@food">@food</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(selectedFood))
+            {
+                <MudPaper Class="pa-4" Outlined="true">
+                    <MudText Typo="Typo.body1" Color="Color.Error">
+                        آیا از حذف غذای <strong>@selectedFood</strong> مطمئن هستید؟
+                    </MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit"
+                   Color="Color.Error"
+                   Variant="Variant.Filled"
+                   Disabled="@string.IsNullOrEmpty(selectedFood)">
+            حذف
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<string> Foods { get; set; } = new();
+
+    private string selectedFood = "";
+
+    private void Submit()
+    {
+        if (string.IsNullOrEmpty(selectedFood)) return;
+
+        // اینجا کد حذف از API
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

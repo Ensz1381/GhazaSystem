@@ -1,0 +1,70 @@
+﻿@rendermode InteractiveServer
+
+<MudDrawer @bind-Open="_open"
+           Elevation="2"
+           Variant="@DrawerVariant.Mini"
+           OpenMiniOnHover="true"
+           Anchor="Anchor.Start"
+           ClipMode="DrawerClipMode.Always"
+           PreserveOpenState="true"
+           Class="drawer-rtl"
+           Style="height: 100vh; z-index: 1300;">
+
+    <MudNavMenu Style="height: 100%;">
+        <MudNavLink Color="Color.Primary"
+                    Icon="@Icons.Material.Filled.Menu"
+                    Class="bold-vazir"
+                    Href="/"
+                    Style="height: 64px; font-weight: 600;"
+                    Match="NavLinkMatch.All">
+            پنل مدیریت غذا
+        </MudNavLink>
+
+        <MudDivider />
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.PlaylistAddCheck"
+                    Href="/select-food"
+                    Match="NavLinkMatch.Prefix">
+            انتخاب غذا
+        </MudNavLink>
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.FilterList"
+                    Href="/manage-food"
+                    Match="NavLinkMatch.Prefix">
+            لیست غذاها
+        </MudNavLink>
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.PlaylistAdd"
+                    Href="/add-food"
+                    Match="NavLinkMatch.Prefix">
+            افزودن مدل غذا
+        </MudNavLink>
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.PlaylistAddCheckCircle"
+                    Href="/"
+                    Match="NavLinkMatch.Prefix">
+            غذای این ماه
+        </MudNavLink>
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.LibraryBooks"
+                    Href="/report"
+                    Match="NavLinkMatch.Prefix">
+            گزارش
+        </MudNavLink>
+    </MudNavMenu>
+</MudDrawer>
+
+<style>
+    .drawer-rtl {
+        position: fixed !important;
+        right: 0 !important;
+        left: auto !important;
+        height: 100vh !important;
+        z-index: 1300 !important;
+    }
+</style>

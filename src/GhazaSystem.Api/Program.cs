@@ -21,7 +21,12 @@ namespace GhazaSystem.Api
             builder.Services.AddDbContext<GhazaDbContext>(options =>
                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        
+            builder.Services.AddCors(polisy => polisy.AddPolicy("GhazaCorsPolicy", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                }));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -42,7 +47,7 @@ namespace GhazaSystem.Api
             var app = builder.Build();
 
 
-
+            app.UseCors("GhazaCorsPolicy");
 
             var scope = app.Services.CreateScope();
             var serviceProvider = scope.ServiceProvider;
