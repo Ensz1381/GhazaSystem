@@ -1,5 +1,4 @@
 ﻿
-using GhazaSystemCommon.Data;
 using System.Threading.Channels;
 
 namespace GhazaSystem.Common.Data;

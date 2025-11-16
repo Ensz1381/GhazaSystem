@@ -1,6 +1,6 @@
 ﻿
 
-using GhazaSystemCommon.Data;
+using GhazaSystem.Common.Data;
 
 namespace GhazaSystem.Common.DTOs;
 

@@ -11,7 +11,7 @@ namespace GhazaSystem.UI.Components.UserComponent
         public string radio { get; set; } = "Professional";
 
         [Inject]
-        private UserServices userServices { get; set; }
+        private UserServices UserServices { get; set; }
 
         [Inject]
         private ISnackbar Snackbar { get; set; }
@@ -31,7 +31,7 @@ namespace GhazaSystem.UI.Components.UserComponent
         {
             Snackbar.Add("salam",Severity.Info);
             ShowSussec = true;
-            var result = await userServices.AddAsync(model);
+            var result = await UserServices.AddAsync(model);
             if(result.IsSuccess) ShowSussec = true;
         }
 

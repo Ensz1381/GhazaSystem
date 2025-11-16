@@ -2,11 +2,13 @@
 using GhazaSystem.Common.DTOs;
 using GhazaSystem.UI.Interfaces;
 using GhazaSystem.UI.Shared;
+using System.Reflection;
+using System.Text.Json.Nodes;
 
 
 namespace GhazaSystem.UI.Services
 {
-    public class UserServices(IHttpClientFactory httpClient) : IBasicServices
+    public class UserServices(IHttpClientFactory httpClient) : IUserServices
     {
         private readonly HttpClient http = httpClient.CreateClient("api");
         public async  Task<Response<User>> AddAsync<T>(T model)
@@ -15,30 +17,34 @@ namespace GhazaSystem.UI.Services
             return await response.ToResponse<User>();
         }
 
-        public Task<Response<object>> DeleteAsync<T>(Guid id)
+        public async Task<Response<object>> DeleteAsync<T>(Guid id)
         {
-            throw new NotImplementedException();
+            var response = await http.DeleteAsync(UserUrlApi.delete(id));
+            return await response.ToResponse<object>();
         }
 
-        public Task<Response<List<T>>> GetAllAsync<T>()
+        public async Task<Response<List<User>>> GetAllAsync<T>()
         {
-            throw new NotImplementedException();
+            var response = await http.GetAsync(UserUrlApi.all);
+            return await response.ToResponse<List<User>>();
         }
 
-        public  async Task<Response<T>> GetByCodeAsync<T>(long code)
+        public  async Task<Response<User>> GetByCodeAsync<T>(long code)
         {
-            var result = await http.GetAsync(UserUrlApi.getCode(code));
-            return await result.ToResponse<T>();
+            var response = await http.GetAsync(UserUrlApi.getCode(code));
+            return await response.ToResponse<User>();
         }
 
-        public Task<Response<T>> GetByIdAsync<T>(Guid id)
+        public async Task<Response<User>> GetByIdAsync<T>(Guid id)
         {
-            throw new NotImplementedException();
+            var response = await http.GetAsync(UserUrlApi.getId(id));
+            return await response.ToResponse<User>();
         }
 
-        public Task<Response<T>> UpdateAsync<T>(T model)
+        public async Task<Response<User>> UpdateAsync<T>(T model)
         {
-            throw new NotImplementedException();
+            var response = await http.PostAsJsonAsync(UserUrlApi.update, model);
+            return await response.ToResponse<User>();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿
-using GhazaSystem.Common.Data;
 
-namespace GhazaSystemCommon.Data;
+namespace GhazaSystem.Common.Data;
 
 public class Food_Change : BasiceData
 {

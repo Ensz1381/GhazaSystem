@@ -21,4 +21,8 @@
     <ProjectReference Include="..\GhazaSystem.Common\GhazaSystem.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Image\foods\" />
+  </ItemGroup>
+
 </Project>

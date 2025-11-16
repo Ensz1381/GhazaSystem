@@ -1,0 +1,163 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField @bind-Value="foodName" 
+                         Label="نام غذا" 
+                         Variant="Variant.Outlined"
+                         Required="true"
+                         Adornment="Adornment.Start"
+                         AdornmentIcon="@Icons.Material.Filled.Restaurant" />
+
+            <MudTextField @bind-Value="description" 
+                         Label="توضیحات" 
+                         Variant="Variant.Outlined"
+                         Lines="3" />
+
+            <MudNumericField @bind-Value="price" 
+                            Label="قیمت (تومان)" 
+                            Variant="Variant.Outlined"
+                            Min="0"
+                            Adornment="Adornment.End"
+                            AdornmentText="تومان" />
+
+            <MudSelect T="string" 
+                      @bind-Value="category" 
+                      Label="دسته‌بندی" 
+                      Variant="Variant.Outlined">
+                <MudSelectItem Value="@("ایرانی")">ایرانی</MudSelectItem>
+                <MudSelectItem Value="@("فست فود")">فست فود</MudSelectItem>
+                <MudSelectItem Value="@("بین‌المللی")">بین‌المللی</MudSelectItem>
+                <MudSelectItem Value="@("سنتی")">سنتی</MudSelectItem>
+            </MudSelect>
+
+            <MudFileUpload T="IBrowserFile" 
+                          @bind-Files="selectedFile" 
+                          OnFilesChanged ="InputChange"
+                          Accept="image/*"
+                          MaximumFileCount="1">
+                          <ActivatorContent>
+                                <MudButton  
+                                      HtmlTag="label"
+                                      Variant="Variant.Outlined"
+                                      Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.CloudUpload" >
+
+                                       انتخاب تصویر غذا
+                                 </MudButton>
+                           </ActivatorContent>
+                <SelectedTemplate>
+                     <MudProgressCircular Color="Color.Default" Value="@_value">
+                         <ChildContent>
+                             @_value %
+                         </ChildContent>
+                    </MudProgressCircular>
+                </SelectedTemplate>
+
+                <SelectedTemplate>
+                    @if (context != null)
+                    {
+                        <MudChip T="string" Color="Color.Success" 
+                                Icon="@Icons.Material.Filled.AttachFile">
+                            @context.Name
+                        </MudChip>
+                    }
+                </SelectedTemplate>
+            </MudFileUpload>
+
+           
+
+            @if (imagePreview != null)
+            {
+                <MudImage Src="@imagePreview" 
+                         Alt="پیش‌نمایش" 
+                         Elevation="2" 
+                         Class="rounded-lg" 
+                         ObjectFit="ObjectFit.Cover"
+                         Height="200" />
+            }
+
+            <MudProgressCircular Color="Color.Default" Value="@_value">
+                         <ChildContent>
+                    @_value %
+                         </ChildContent>
+                    </MudProgressCircular>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Success" Variant="Variant.Filled">افزودن</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private string foodName = "";
+    private string description = "";
+    private decimal price = 0;
+    private string category = "ایرانی";
+    private IBrowserFile? selectedFile;
+    private string? imagePreview;
+    double _value;
+    private long max_size = 20 * 1024 * 1024;
+    private string base_image_path = "wwwroot/image/foods/";
+    private byte[] buffer = new byte[1024];
+
+
+    async Task InputChange(InputFileChangeEventArgs args)
+    {
+        /* خواندن عکس بدون پروگرس
+        MemoryStream memoryStream = new MemoryStream();
+
+        await args.File.OpenReadStream(max_size).CopyToAsync(memoryStream);
+
+        File.WriteAllBytes($"{base_image_path}{args.File.Name}", memoryStream.ToArray());
+        */
+        _value = 0;
+        Stream stream = args.File.OpenReadStream(max_size);
+        FileStream fileStream = new FileStream($"{base_image_path}{args.File.Name}", FileMode.Create);
+        long file_size = args.File.Size;
+        double resount = 100 / (file_size / 1024);
+        while (true)
+        {
+            int readbyte = await stream.ReadAsync(buffer);
+
+            if (readbyte == 0)
+            {
+                _value = 100;
+                break;
+            }
+
+            _value += resount ;
+            StateHasChanged();
+            fileStream.Write(buffer, 0, readbyte);
+
+        }
+        
+
+
+    }
+
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(foodName))
+        {
+            return;
+        }
+
+        // اینجا کد آپلود تصویر و ارسال به API
+        if (selectedFile != null)
+        {
+            var buffer = new byte[selectedFile.Size];
+            await selectedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).ReadAsync(buffer);
+            imagePreview = $"data:{selectedFile.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        }
+
+        MudDialog.Close(DialogResult.Ok(foodName));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

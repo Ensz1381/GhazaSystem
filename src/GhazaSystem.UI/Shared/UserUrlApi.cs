@@ -3,19 +3,19 @@ namespace GhazaSystem.UI.Shared;
 
 public static class UserUrlApi
 {
-    public const string add = "api/user/add";
-    public const string all = "api/user/all";
-    public const string update = "api/user/update";
+    public const string add = "api/User/add";
+    public const string all = "api/User/all";
+    public const string update = "api/User/update";
     public static string delete (Guid id)
     {
-        return $"api/user/delete/{id}";
+        return $"api/User/delete/{id}";
     }
     public static string getId(Guid id)
     {
-        return $"api/user/get/{id}";
+        return $"api/User/get/{id}";
     }
     public static string getCode(long code)
     {
-        return $"api/user/national-code/{code}";
+        return $"api/User/national-code/{code}";
     }
 }
