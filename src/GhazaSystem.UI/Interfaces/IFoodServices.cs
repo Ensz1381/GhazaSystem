@@ -9,7 +9,7 @@ public interface IFoodServices
 {
     Task<Response<List<Food>>> GetAllAsync();
     Task<Response<Food>> GetByIdAsync(Guid id);
-    Task<Response<Food>> AddAsync(Food model);
+    Task<Response<Food>> AddAsync(Common.DTOs.FoodDTOs model);
     Task<Response<Food>> UpdateAsync(Food model);
     Task<Response<object>> DeleteAsync(Guid id);
 }

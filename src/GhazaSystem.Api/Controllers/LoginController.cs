@@ -15,39 +15,43 @@ public class LoginController : ControllerBase
     ) : ControllerBase
     {
         [HttpGet("all")]
-        public async Task<IActionResult> All()
+        public async Task<Response<List<Login>>> All()
         {
-            var logins = await loginRepository.GetAllAsync();
-            return Ok(logins);
+            var response = await loginRepository.GetAllAsync();
+            if (response.IsSuccess == true) return ResponseBuilder.Success<List<Login>>(response.Data!);
+            return ResponseBuilder.Failure<List<Login>>();
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> delete(Guid id)
+        public async Task<Response<object>> delete(Guid id)
         {
-            await loginRepository.DeleteAsync(id);
-            return Ok();
+            var response =  await loginRepository.DeleteAsync(id);
+            if (response.IsSuccess == true) return ResponseBuilder.Success(response.Data!);
+            return ResponseBuilder.Failure();
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> Add(Login login)
+        public async Task<Response<Login>> Add(Login login)
         {
-            await loginRepository.AddAsync(login);
-            return Ok();
+            var response = await loginRepository.AddAsync(login);
+            if (response.IsSuccess == true) return ResponseBuilder.Success<Login>(response.Data!);
+            return ResponseBuilder.Failure<Login>();
         }
 
         [HttpGet("get/{id}")]
-        public async Task<Login> GetById(Guid id)
+        public async Task<Response<Login>> GetById(Guid id)
         {
-            var login = await loginRepository.GetByIdAsync(id);
-            if (login.Data == null) throw new Exception("is null");
-            return login.Data;
+            var response = await loginRepository.GetByIdAsync(id);
+            if (response.IsSuccess == true) return ResponseBuilder.Success<Login>(response.Data!);
+            return ResponseBuilder.Failure<Login>();
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> Update(Login login)
+        public async Task<Response<Login>> Update(Login login)
         {
-            await loginRepository.UpdateAsync(login);
-            return Ok();
+            var response = await loginRepository.UpdateAsync(login);
+            if (response.IsSuccess == true) return ResponseBuilder.Success<Login>(response.Data!);
+            return ResponseBuilder.Failure<Login>();
         }
     }
 }

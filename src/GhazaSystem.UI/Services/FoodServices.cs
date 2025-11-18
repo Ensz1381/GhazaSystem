@@ -9,7 +9,7 @@ namespace GhazaSystem.UI.Services;
 public class FoodServices(IHttpClientFactory httpClient) : IFoodServices
 {
     private readonly HttpClient http = httpClient.CreateClient("api");
-    public async Task<Response<Food>> AddAsync(Food model)
+    public async Task<Response<Food>> AddAsync(Common.DTOs.FoodDTOs model)
     {
         var response = await http.PostAsJsonAsync(FoodUrlApi.add, model);
         return await response.ToResponse<Food>();

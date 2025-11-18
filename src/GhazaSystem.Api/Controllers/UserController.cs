@@ -15,16 +15,18 @@ namespace GhazaSystem.Api.Controllers
         ) : ControllerBase
     {
         [HttpGet("all")]
-        public async Task<IActionResult> All() {
+        public async Task<Response<List<User>>?> All() {
             var users = await userRepository.GetAllAsync();
-            return Ok(users);
+            if (users != null) return ResponseBuilder.Failure<List<User>>();
+            
+            return ResponseBuilder.Success<List<User>>(users!.Data!);
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> delete (Guid id)
+        public async Task<Response<object>> delete (Guid id)
         {
             await userRepository.DeleteAsync(id);
-            return Ok();
+            return ResponseBuilder.Success(message: "کاربر با موفقیت پاک شد.");
         }
 
         [HttpPost("add")]
@@ -33,8 +35,8 @@ namespace GhazaSystem.Api.Controllers
             User user = new User()
             {
                 Id = new Guid(),
-                First_Name = userdto.First_Name,
-                Last_Name = userdto.Last_Name,
+                First_Name = userdto.First_Name!,
+                Last_Name = userdto.Last_Name!,
                 National_Code = userdto.National_Code ,
             };
 
@@ -42,21 +44,21 @@ namespace GhazaSystem.Api.Controllers
         }
 
         [HttpGet("get/{id}")]
-        public async Task<User> GetById(Guid id) 
+        public async Task<Response<User>> GetById(Guid id) 
         { 
             var user = await userRepository.GetByIdAsync(id);
-            return user.Data;
+            return ResponseBuilder.Success<User>(user.Data!);
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> Update(User user)
+        public async Task<Response<object>> Update(User user)
         {
             await userRepository.UpdateAsync(user);
-            return Ok();
+            return ResponseBuilder.Success();
         }
 
         [HttpGet("national-code/{code}")]
-        public async Task<User> GetById(long code)
+        public async Task<Response<User>> GetById(long code)
         {
             var result = await userRepository.GetAllAsync();
             var users = result.Data;
@@ -66,11 +68,11 @@ namespace GhazaSystem.Api.Controllers
                 {
                     if (user.National_Code == code)
                     {
-                        return user;
+                        return ResponseBuilder.Success<User>(user);
                     }
                 }
             }
-            return new User() { Id = new Guid(),First_Name = "nuul",Last_Name="null",National_Code = 0 };
+            return ResponseBuilder.Failure<User>( );
         }
 
     }

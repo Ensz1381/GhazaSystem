@@ -1,5 +1,6 @@
 ﻿using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
+using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,38 +13,42 @@ public class FoodController(
     ) : ControllerBase
 {
     [HttpGet("all")]
-    public async Task<IActionResult> All()
+    public async Task<Response<List<Food>>> All()
     {
-        var logins = await FoodRepository.GetAllAsync();
-        return Ok(logins);
+        var respons = await FoodRepository.GetAllAsync();
+        return ResponseBuilder.Success<List<Food>>(respons.Data!);
     }
 
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> delete(Guid id)
+    public async Task<Response<object>> delete(Guid id)
     {
-        await FoodRepository.DeleteAsync(id);
-        return Ok();
+        var response = await FoodRepository.DeleteAsync(id);
+        if(response.IsSuccess==true) return ResponseBuilder.Success();
+        return ResponseBuilder.Failure<object>();
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> Add(Food model)
+    public async Task<Response<Food>> Add(FoodDTOs model)
     {
-        await FoodRepository.AddAsync(model);
-        return Ok();
+        var food_model =  new Food() { Amount = model.Amount,Name= model.Name,Description=model.Description,Id = new Guid(),Photos = model.Photos }; 
+        var response = await FoodRepository.AddAsync(food_model);
+        if (response.IsSuccess==true) return ResponseBuilder.Success(response.Data!);
+        return ResponseBuilder.Failure<Food>();
     }
 
     [HttpGet("get/{id}")]
-    public async Task<Food> GetById(Guid id)
+    public async Task<Response<Food>> GetById(Guid id)
     {
-        var result = await FoodRepository.GetByIdAsync(id);
-        if (result.Data == null) throw new Exception("is null");
-        return result.Data;
+        var response = await FoodRepository.GetByIdAsync(id);
+        if (response.Data == null) ResponseBuilder.Failure<Food>();
+        return ResponseBuilder.Success(response.Data!);
     }
 
     [HttpPost("update")]
-    public async Task<IActionResult> Update(Food model)
+    public async Task<Response<Food>> Update(Food model)
     {
-        await FoodRepository.UpdateAsync(model);
-        return Ok();
+        var response = await FoodRepository.UpdateAsync(model);
+        if (response.IsSuccess == true) return ResponseBuilder.Success(response.Data!);
+        return ResponseBuilder.Failure<Food>();
     }
 }

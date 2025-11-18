@@ -1,7 +1,9 @@
 ﻿using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
+using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace GhazaSystem.Api.Controllers;
 
@@ -12,38 +14,42 @@ public class Daily_FoodController(
     ) : ControllerBase
 {
     [HttpGet("all")]
-    public async Task<IActionResult> All()
+    public async Task<Response<List<Daily_Food>>> All()
     {
-        var logins = await Daily_FoodRepository.GetAllAsync();
-        return Ok(logins);
+        var response = await Daily_FoodRepository.GetAllAsync();
+        if(response.IsSuccess == true)  return ResponseBuilder.Success(response.Data!);
+        return ResponseBuilder.Failure<List<Daily_Food>>();
     }
 
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> delete(Guid id)
+    public async Task<Response<object>> delete(Guid id)
     {
-        await Daily_FoodRepository.DeleteAsync(id);
-        return Ok();
+        var response = await Daily_FoodRepository.DeleteAsync(id);
+        if (response.IsSuccess == true) return ResponseBuilder.Success<object>(response.Data!);
+        return ResponseBuilder.Failure<object>();
     }
 
     [HttpPost("add")]
-    public async Task<IActionResult> Add(Daily_Food model)
+    public async Task<Response<Daily_Food>> Add(Daily_Food model)
     {
-        await Daily_FoodRepository.AddAsync(model);
-        return Ok();
+        var response =  await Daily_FoodRepository.AddAsync(model);
+        if (response.IsSuccess == true) return ResponseBuilder.Success<Daily_Food>(response.Data!);
+        return ResponseBuilder.Failure<Daily_Food>();
     }
 
     [HttpGet("get/{id}")]
-    public async Task<Daily_Food> GetById(Guid id)
+    public async Task<Response<Daily_Food>> GetById(Guid id)
     {
-        var result = await Daily_FoodRepository.GetByIdAsync(id);
-        if (result.Data == null) throw new Exception("is null");
-        return result.Data;
+        var response = await Daily_FoodRepository.GetByIdAsync(id);
+        if (response.IsSuccess == true) return ResponseBuilder.Success<Daily_Food>(response.Data!);
+        return ResponseBuilder.Failure<Daily_Food>();
     }
 
     [HttpPost("update")]
-    public async Task<IActionResult> Update(Daily_Food model)
+    public async Task<Response<Daily_Food>> Update(Daily_Food model)
     {
-        await Daily_FoodRepository.UpdateAsync(model);
-        return Ok();
+        var response =  await Daily_FoodRepository.UpdateAsync(model);
+        if (response.IsSuccess == true) return ResponseBuilder.Success<Daily_Food>(response.Data!);
+        return ResponseBuilder.Failure<Daily_Food>();
     }
 }

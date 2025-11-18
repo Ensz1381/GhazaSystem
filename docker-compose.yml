@@ -50,7 +50,7 @@ services:
       - DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
     volumes:
       - Front:/app/wwwroot
-
+      - foodphotos:/app/wwwroot/image/foods
     depends_on:
      - api
 
@@ -59,3 +59,5 @@ volumes:
    driver: local
   Front:
    driver: local  
+  foodphotos:
+   driver: local
