@@ -1,5 +1,6 @@
 ﻿
 using GhazaSystem.Common.Data;
+using GhazaSystem.Common.DTOs;
 using GhazaSystem.UI.Interfaces;
 using GhazaSystem.UI.Shared;
 using System.Net.Http;

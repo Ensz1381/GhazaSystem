@@ -1,6 +1,7 @@
-﻿using GhazaSystem.Api.DTOs;
+﻿
 using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
+using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

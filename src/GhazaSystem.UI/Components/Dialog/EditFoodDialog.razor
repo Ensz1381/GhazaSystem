@@ -1,10 +1,11 @@
-﻿@rendermode InteractiveServer
-
+﻿@using GhazaSystem.UI.Services
+@rendermode InteractiveServer
+@inject FoodServices foodServices
 
 <MudDialog>
     <DialogContent>
         <MudStack Spacing="3">
-            <MudSelect T="string" 
+            <MudSelect T="Food" 
                       @bind-Value="selectedFood" 
                       Label="انتخاب غذا برای ویرایش" 
                       Variant="Variant.Outlined"
@@ -12,32 +13,34 @@
                       AdornmentIcon="@Icons.Material.Filled.Restaurant">
                 @foreach (var food in Foods)
                 {
-                    <MudSelectItem Value="@food">@food</MudSelectItem>
+                    <MudSelectItem Value="@food">@food.Name</MudSelectItem>
                 }
             </MudSelect>
 
-            @if (!string.IsNullOrEmpty(selectedFood))
+            @if (!string.IsNullOrEmpty(selectedFood.Name))
             {
                 <MudDivider />
 
-                <MudTextField @bind-Value="newName" 
+                <MudTextField @bind-Value="newFood.Name" 
                              Label="نام جدید غذا" 
                              Variant="Variant.Outlined" />
 
-                <MudTextField @bind-Value="newDescription" 
+                <MudTextField @bind-Value="newFood.Description" 
                              Label="توضیحات جدید" 
                              Variant="Variant.Outlined"
                              Lines="3" />
 
-                <MudNumericField @bind-Value="newPrice" 
+                <MudNumericField @bind-Value="newFood.Amount" 
                                 Label="قیمت جدید (تومان)" 
                                 Variant="Variant.Outlined"
                                 Adornment="Adornment.End"
                                 AdornmentText="تومان" />
 
-                <MudFileUpload T="IBrowserFile" Accept="image/*">
-                    <ActivatorContent>
-                        <MudButton HtmlTag="label"
+                <MudFileUpload T="IBrowserFile" Accept="image/*"
+                               @bind-Files="selectedFile"
+                               OnFilesChanged="InputChange">
+                                   <ActivatorContent>
+                                        <MudButton HtmlTag="label"
                                   Variant="Variant.Outlined"
                                   Color="Color.Primary"
                                   StartIcon="@Icons.Material.Filled.CloudUpload"
@@ -54,7 +57,7 @@
         <MudButton OnClick="Submit" 
                   Color="Color.Warning" 
                   Variant="Variant.Filled"
-                  Disabled="@string.IsNullOrEmpty(selectedFood)">
+                  Disabled="@string.IsNullOrEmpty(selectedFood.Name)">
             ویرایش
         </MudButton>
     </DialogActions>
@@ -62,20 +65,64 @@
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
-    [Parameter] public List<string> Foods { get; set; } = new();
+    [Parameter] public List<Food> Foods { get; set; } = new();
+    private IBrowserFile? selectedFile;
 
-    private string selectedFood = "";
-    private string newName = "";
-    private string newDescription = "";
-    private decimal newPrice = 0;
+    private Food selectedFood = new Food() {Name = "",Amount = 1 };
 
-    private void Submit()
+
+    private Food newFood = new Food() { Name = "", Amount = 1 };
+
+    private async Task Submit()
     {
-        if (string.IsNullOrEmpty(selectedFood)) return;
-        
+        if (string.IsNullOrEmpty(selectedFood.Name)) return;
+        if (string.IsNullOrEmpty(newFood.Description)) newFood.Description = selectedFood.Description;
+        if (string.IsNullOrEmpty(newFood.Photos)) newFood.Photos = selectedFood.Photos;
+        if (newFood.Amount == 1) newFood.Amount = selectedFood.Amount;
+
+        await foodServices.UpdateAsync(newFood);
+
         // اینجا کد ارسال به API
         MudDialog.Close(DialogResult.Ok(true));
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+
+    double _value;
+    private long max_size = 20 * 1024 * 1024;
+    private string base_image_path = "wwwroot/image/foods/";
+    private string show_image_path = "/image/foods/";
+    private byte[] buffer = new byte[1024];
+
+    async Task InputChange(InputFileChangeEventArgs args)
+    {
+        _value = 0;
+        Stream stream = args.File.OpenReadStream(max_size);
+        FileStream fileStream = new FileStream($"{base_image_path}{args.File.Name}", FileMode.Create);
+        long file_size = args.File.Size;
+        double resount = 100 / (file_size / 1024);
+        while (true)
+        {
+            int readbyte = await stream.ReadAsync(buffer);
+
+            if (readbyte == 0)
+            {
+                _value = 100;
+                break;
+            }
+
+            _value += resount;
+            StateHasChanged();
+            fileStream.Write(buffer, 0, readbyte);
+
+
+        }
+        
+        newFood.Photos = $"{show_image_path}{args.File.Name}";
+
+
+    }
+
+
 }

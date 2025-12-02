@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using GhazaSystem.Common.DTOs;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace GhazaSystem.UI.Services;
@@ -16,14 +17,6 @@ public static class CreatResponse
         return responseObject;
     } 
 }
-public class Response<T>
-{
-    public int StatusCode { get; set; }
-    public bool IsSuccess { get; set; }
-    public List<string>? Errors { get; set; }
-    public string? Message { get; set; }
 
-    public T? Data { get; set; }
-}
 
 

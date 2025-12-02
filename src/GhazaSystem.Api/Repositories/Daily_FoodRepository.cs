@@ -1,7 +1,7 @@
-﻿using GhazaSystem.Api.DTOs;
-using GhazaSystem.Api.Infrastructure;
+﻿using GhazaSystem.Api.Infrastructure;
 using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
+using GhazaSystem.Common.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace GhazaSystem.Api.Services

@@ -1,6 +1,7 @@
 ﻿
 
 using GhazaSystem.Common.Data;
+using GhazaSystem.Common.DTOs;
 using GhazaSystem.UI.Services;
 
 namespace GhazaSystem.UI.Interfaces;

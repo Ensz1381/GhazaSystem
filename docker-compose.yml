@@ -6,6 +6,7 @@ services:
     image: postgres:16-alpine
     container_name: my-postgres-db
     restart: unless-stopped
+    pull_policy: missing
     #command: -c 'max_connections=2000'
     environment:
       POSTGRES_DB: GhazaSystemDb
@@ -18,6 +19,7 @@ services:
 
   api:
     container_name: my-api
+    pull_policy: missing
     build:
       context: ./src
       dockerfile: GhazaSystem.Api/Dockerfile
@@ -34,6 +36,7 @@ services:
     build:
       context: ./src
       dockerfile: ./Dockerfile
+    pull_policy: missing
     ports:
       - "7000:8080"
       #- "7001:443" # برای Blazor WebAssembly

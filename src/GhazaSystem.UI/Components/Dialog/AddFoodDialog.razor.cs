@@ -23,6 +23,7 @@ namespace GhazaSystem.UI.Components.Dialog
         double _value;
         private long max_size = 20 * 1024 * 1024;
         private string base_image_path = "wwwroot/image/foods/";
+        private string show_image_path = "/image/foods/";
         private byte[] buffer = new byte[1024];
 
 
@@ -65,7 +66,7 @@ namespace GhazaSystem.UI.Components.Dialog
             var result = await foodServices.AddAsync(foodForm);
             Snackbar.Add($"غذای {foodForm.Name} اضافه شد", Severity.Success);
             */
-
+            imagePreview = $"{show_image_path}{foodName}";
     }
 
 
@@ -75,8 +76,7 @@ namespace GhazaSystem.UI.Components.Dialog
             {
                 return;
             }
-            Snackbar.Add($"غذای {foodForm.Name} اضافه شد", Severity.Success);
-            foodForm.Photos = $"{base_image_path}{foodName}";
+            foodForm.Photos = $"{show_image_path}{foodName}";
 
             var result = await foodServices.AddAsync(foodForm);
             Snackbar.Add($"غذای {foodForm.Name} اضافه شد", Severity.Success);

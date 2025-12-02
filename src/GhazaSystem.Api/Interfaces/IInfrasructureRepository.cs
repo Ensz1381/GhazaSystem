@@ -1,5 +1,5 @@
-﻿using GhazaSystem.Api.DTOs;
-using GhazaSystem.Api.Infrastructure.Data;
+﻿using GhazaSystem.Api.Infrastructure.Data;
+using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GhazaSystem.Api.Interfaces

@@ -1,9 +1,10 @@
 ﻿@page "/manage-food"
 @using GhazaSystem.UI.Components.Dialog
 @using GhazaSystem.UI.Components.UserComponent
+@using GhazaSystem.UI.Services
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
-
+@inject FoodServices foodServices
 
 
 
@@ -149,18 +150,35 @@
                                                     <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
                                                 </MudStack>
                                                 
-                                                <MudSelect T="string" 
+                                                <MudSelect T="Food"
+                                                          FullWidth = "true"
                                                           MultiSelection="true" 
                                                           @bind-SelectedValues="day.SelectedFoods"
                                                           Label="انتخاب غذا"
                                                           Variant="Variant.Outlined"
-                                                          Dense="true"
+                                                          Dense="false"
                                                           Disabled="@week1Locked"
                                                           AdornmentIcon="@Icons.Material.Filled.Restaurant"
                                                           AdornmentColor="Color.Primary">
                                                     @foreach (var food in availableFoods)
                                                     {
-                                                        <MudSelectItem T="string" Value="@food">@food</MudSelectItem>
+                                                        <MudSelectItem T="Food" Value="@food"
+                                                                       Style=" display: flex;
+                                                                               flex-direction: row-reverse;
+                                                                               padding-left:0;padding-right:0;
+                                                                             ">
+                                                            <MudChip T="Food" Style="width: 95%;
+                                                                                     justify-content: space-between;
+                                                                                    ">
+                                                                <ChildContent>@food.Name</ChildContent>
+                                                                <AvatarContent>
+                                                                    <MudAvatar>
+                                                                        <MudImage Src=@food.Photos></MudImage>
+                                                                    </MudAvatar>
+                                                                </AvatarContent>
+                                                                
+                                                            </MudChip>
+                                                        </MudSelectItem>
                                                     }
                                                 </MudSelect>
 
@@ -171,7 +189,7 @@
                                                         {
                                                             <MudChip T="string" Size="Size.Small" 
                                                                     Color="Color.Success" 
-                                                                    OnClose="() => RemoveFood(day, selectedFood)"
+                                                                    OnClose="() => RemoveFood(day, selectedFood.Name)"
                                                                     Disabled="@week1Locked">
                                                                 @selectedFood
                                                             </MudChip>
@@ -231,7 +249,7 @@
                                                     <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
                                                 </MudStack>
                                                 
-                                                <MudSelect T="string" 
+                                                <MudSelect T="Food" 
                                                           MultiSelection="true" 
                                                           @bind-SelectedValues="day.SelectedFoods"
                                                           Label="انتخاب غذا"
@@ -242,7 +260,24 @@
                                                           AdornmentColor="Color.Primary">
                                                     @foreach (var food in availableFoods)
                                                     {
-                                                        <MudSelectItem T="string" Value="@food">@food</MudSelectItem>
+                                                        <MudSelectItem T="Food" Value="@food"
+                                                                       Style=" display: flex;
+                                                                                           flex-direction: row-reverse;
+                                                                                           padding-left:0;padding-right:0;
+                                                                                         ">
+                                                            <MudChip T="Food" Style="width: 95%;
+                                                                                                 justify-content: space-between;
+                                                                                                ">
+                                                                <ChildContent>@food.Name</ChildContent>
+                                                                <AvatarContent>
+                                                                    <MudAvatar>
+                                                                        <MudImage Src=@food.Photos></MudImage>
+                                                                    </MudAvatar>
+                                                                </AvatarContent>
+
+                                                            </MudChip>
+                                                        </MudSelectItem>
+
                                                     }
                                                 </MudSelect>
 
@@ -253,7 +288,7 @@
                                                         {
                                                             <MudChip T="string" Size="Size.Small" 
                                                                     Color="Color.Success" 
-                                                                    OnClose="() => RemoveFood(day, selectedFood)"
+                                                                    OnClose="() => RemoveFood(day, selectedFood.Name)"
                                                                     Disabled="@week2Locked">
                                                                 @selectedFood
                                                             </MudChip>
@@ -313,7 +348,7 @@
                                                     <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
                                                 </MudStack>
                                                 
-                                                <MudSelect T="string" 
+                                                <MudSelect T="Food" 
                                                           MultiSelection="true" 
                                                           @bind-SelectedValues="day.SelectedFoods"
                                                           Label="انتخاب غذا"
@@ -324,7 +359,24 @@
                                                           AdornmentColor="Color.Primary">
                                                     @foreach (var food in availableFoods)
                                                     {
-                                                        <MudSelectItem T="string" Value="@food">@food</MudSelectItem>
+                                                        <MudSelectItem T="Food" Value="@food"
+                                                                       Style=" display: flex;
+                                                                                           flex-direction: row-reverse;
+                                                                                           padding-left:0;padding-right:0;
+                                                                                         ">
+                                                            <MudChip T="Food" Style="width: 95%;
+                                                                                                 justify-content: space-between;
+                                                                                                ">
+                                                                <ChildContent>@food.Name</ChildContent>
+                                                                <AvatarContent>
+                                                                    <MudAvatar>
+                                                                        <MudImage Src=@food.Photos></MudImage>
+                                                                    </MudAvatar>
+                                                                </AvatarContent>
+
+                                                            </MudChip>
+                                                        </MudSelectItem>
+
                                                     }
                                                 </MudSelect>
 
@@ -335,7 +387,7 @@
                                                         {
                                                             <MudChip T="string" Size="Size.Small" 
                                                                     Color="Color.Success" 
-                                                                    OnClose="() => RemoveFood(day, selectedFood)"
+                                                                    OnClose="() => RemoveFood(day, selectedFood.Name)"
                                                                     Disabled="@week3Locked">
                                                                 @selectedFood
                                                             </MudChip>
@@ -380,29 +432,30 @@
 @code {
     private int selectedMonth = 7;
     private int selectedYear = 1403;
-    
+
     private bool week1Locked = false;
     private bool week2Locked = false;
     private bool week3Locked = false;
 
-    private List<string> availableFoods = new()
+    public List<Food> availableFoods = new List<Food>();
+    public Response<List<Food>> resultFoods = new Response<List<Food>>();
+
+
+    protected override async Task OnInitializedAsync()
     {
-        "قورمه سبزی",
-        "زرشک پلو با مرغ",
-        "جوجه کباب",
-        "قیمه بادمجان",
-        "خورش کرفس",
-        "باقالی پلو",
-        "فسنجان",
-        "ماهی شکم پر",
-        "آش رشته",
-        "کوفته تبریزی",
-        "لوبیا پلو",
-        "ته چین مرغ",
-        "پیتزا مخصوص",
-        "پاستا",
-        "لازانیا"
-    };
+        resultFoods = await foodServices.GetAllAsync();
+        availableFoods = resultFoods.Data!;
+    }
+
+
+
+
+    private async Task GetFoodAsync()
+    {
+        resultFoods = await foodServices.GetAllAsync();
+        availableFoods = resultFoods.Data!;
+        StateHasChanged();
+    }
 
 
     private class DayInfo
@@ -410,19 +463,19 @@
         public string DayName { get; set; } = "";
         public string Date { get; set; } = "";
         public bool IsHoliday { get; set; }
-        public IEnumerable<string> SelectedFoods { get; set; } = new List<string>();
+        public IEnumerable<Food> SelectedFoods { get; set; } = new List<Food>();
     }
 
     private List<DayInfo> GetWeek1()
     {
         return new List<DayInfo>
         {
-            new() { DayName = "شنبه", Date = "1 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "یکشنبه", Date = "2 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "دوشنبه", Date = "3 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "سه‌شنبه", Date = "4 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "چهارشنبه", Date = "5 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "پنج‌شنبه", Date = "6 مهر", SelectedFoods = new List<string>() },
+            new() { DayName = "شنبه", Date = "1 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "یکشنبه", Date = "2 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "دوشنبه", Date = "3 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "سه‌شنبه", Date = "4 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "چهارشنبه", Date = "5 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "پنج‌شنبه", Date = "6 مهر", SelectedFoods = new List<Food>() },
             new() { DayName = "جمعه", Date = "7 مهر", IsHoliday = true }
         };
     }
@@ -431,12 +484,12 @@
     {
         return new List<DayInfo>
         {
-            new() { DayName = "شنبه", Date = "8 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "یکشنبه", Date = "9 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "دوشنبه", Date = "10 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "سه‌شنبه", Date = "11 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "چهارشنبه", Date = "12 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "پنج‌شنبه", Date = "13 مهر", SelectedFoods = new List<string>() },
+            new() { DayName = "شنبه", Date = "8 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "یکشنبه", Date = "9 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "دوشنبه", Date = "10 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "سه‌شنبه", Date = "11 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "چهارشنبه", Date = "12 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "پنج‌شنبه", Date = "13 مهر", SelectedFoods = new List<Food>() },
             new() { DayName = "جمعه", Date = "14 مهر", IsHoliday = true }
         };
     }
@@ -445,12 +498,12 @@
     {
         return new List<DayInfo>
         {
-            new() { DayName = "شنبه", Date = "15 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "یکشنبه", Date = "16 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "دوشنبه", Date = "17 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "سه‌شنبه", Date = "18 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "چهارشنبه", Date = "19 مهر", SelectedFoods = new List<string>() },
-            new() { DayName = "پنج‌شنبه", Date = "20 مهر", SelectedFoods = new List<string>() },
+            new() { DayName = "شنبه", Date = "15 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "یکشنبه", Date = "16 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "دوشنبه", Date = "17 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "سه‌شنبه", Date = "18 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "چهارشنبه", Date = "19 مهر", SelectedFoods = new List<Food>() },
+            new() { DayName = "پنج‌شنبه", Date = "20 مهر", SelectedFoods = new List<Food>() },
             new() { DayName = "جمعه", Date = "21 مهر", IsHoliday = true }
         };
     }
@@ -458,21 +511,24 @@
     private void RemoveFood(DayInfo day, string food)
     {
         var list = day.SelectedFoods.ToList();
-        list.Remove(food);
+        Food Listfood = list.FirstOrDefault(s => s.Name==food)!;
+        list.Remove(Listfood);
         day.SelectedFoods = list;
     }
 
     private async Task LoadData()
     {
         Snackbar.Add("در حال بارگذاری اطلاعات...", Severity.Info);
-        await Task.Delay(500);
+        resultFoods = await foodServices.GetAllAsync();
+        availableFoods = resultFoods.Data!;
+        StateHasChanged();
         Snackbar.Add("اطلاعات با موفقیت بارگذاری شد", Severity.Success);
     }
 
     private async Task OpenAddFoodDialog()
     {
 
-       // DialogService.ShowAsync<AddFoodDialog>("Options Dialog");
+        // DialogService.ShowAsync<AddFoodDialog>("Options Dialog");
         var dialog = await DialogService.ShowAsync<AddFoodDialog>("افزودن غذای جدید");
         var result = await dialog.Result;
 
@@ -484,9 +540,10 @@
 
     private async Task OpenEditFoodDialog()
     {
+        resultFoods = await foodServices.GetAllAsync();
         var parameters = new DialogParameters<EditFoodDialog>
         {
-            { x => x.Foods, availableFoods }
+            { x => x.Foods, resultFoods.Data }
         };
 
         var dialog = await DialogService.ShowAsync<EditFoodDialog>("ویرایش غذا", parameters);
@@ -500,9 +557,10 @@
 
     private async Task OpenDeleteFoodDialog()
     {
+        resultFoods = await foodServices.GetAllAsync();
         var parameters = new DialogParameters<DeleteFoodDialog>
         {
-            { x => x.Foods, availableFoods }
+            { x => x.Foods,  resultFoods.Data }
         };
 
         var dialog = await DialogService.ShowAsync<DeleteFoodDialog>("حذف غذا", parameters);
