@@ -1,3 +1,4 @@
+using GhazaSystem.Common.Services;
 using GhazaSystem.UI.Components;
 using GhazaSystem.UI.Interfaces;
 using GhazaSystem.UI.Services;
@@ -25,6 +26,7 @@ namespace GhazaSystem.UI
             builder.Services.AddScoped<LoginServices>();
             builder.Services.AddScoped<FoodChangeServices>();
             builder.Services.AddScoped<DailyFoodServices>();
+            builder.Services.AddSingleton<PersianCalendarService>();
 
             builder.Services.AddHttpClient("api", client =>
             {

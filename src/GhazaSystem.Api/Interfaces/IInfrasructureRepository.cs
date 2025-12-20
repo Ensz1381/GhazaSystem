@@ -11,5 +11,8 @@ namespace GhazaSystem.Api.Interfaces
         Task<Response<T>> AddAsync(T model);
         Task<Response<T>> UpdateAsync(T model);
         Task<Response<object>> DeleteAsync(Guid id);
+        Task<Response<List<T>>> GetListAsync(ListUserDailyFoodsDTO model);
+        Task<Response<object>> SetListAsync(ListUserDailyFoodsDTO list);
     }
+
 }

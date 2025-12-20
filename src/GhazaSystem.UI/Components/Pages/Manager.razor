@@ -1,0 +1,231 @@
+﻿@page "/manager"
+@using GhazaSystem.UI.Components.Dialog
+@using GhazaSystem.Common.Services
+@using GhazaSystem.UI.Components.Dialog.Food
+@using GhazaSystem.UI.Components.Dialog.User
+@using GhazaSystem.UI.Services
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject FoodServices foodServices
+@inject UserServices userServices
+@inject DailyFoodServices dailyFoodServices
+@inject PersianCalendarService psc
+
+
+<PageTitle>صفحه مدیریت پنل</PageTitle>
+
+<MudRTLProvider RightToLeft = "true">
+
+    <div style="height: 100vh; display: flex; flex-direction: column; background-color: #f5f5f5;">
+
+        <MudPaper Elevation="1" Square="true" Class="pa-4" Style="flex-shrink: 0;">
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h3" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
+                        مدیریت پنل غذا
+                    </MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-10">
+                        تنها مدیران و مسئولین غذا به این پنل دسترسی دارند
+                    </MudText>
+                </MudStack>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           
+                           Size="Size.Small">
+                    بروزرسانی
+                </MudButton>
+            </MudStack>
+
+            <MudDivider Class="m-3" />
+
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <!-- انتخاب ماه و سال -->
+                    <MudStack Row="true" Spacing="2">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
+                        مدیریت اطلاعات غذا ها  در پنل غذای سازمانی
+                    </MudText>
+                    </MudStack>
+
+                    <!-- دکمه‌های عملیات -->
+                    <MudStack Row="true" Spacing="2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   StartIcon="@Icons.Material.Filled.Add"
+                                   Size="Size.Small"
+                                   OnClick="OpenAddFoodDialog">
+                            افزودن غذا
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Warning"
+                                   StartIcon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   OnClick="OpenEditFoodDialog">
+                            ویرایش غذا
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   OnClick="OpenDeleteFoodDialog">
+                            حذف غذا
+                        </MudButton>
+                    </MudStack>
+                
+
+
+            </MudStack>
+
+            <MudDivider Class="m-3"/>
+
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <!-- انتخاب ماه و سال -->
+                <MudStack Row="true" Spacing="2">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
+                        مدیریت اطلاعات کاربران (پرسنل شرکت ) در پنل غذای سازمانی
+                    </MudText>
+                </MudStack>
+
+                <!-- دکمه‌های عملیات -->
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Success"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Size="Size.Small"
+                               OnClick="OpenAddUserDialog">
+                        افزودن کاربر
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Warning"
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               OnClick="OpenEditUserDialog">
+                        ویرایش کاربر
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               OnClick="OpenDeleteUserDialog">
+                        حذف کاربر
+                    </MudButton>
+                </MudStack>
+
+
+
+            </MudStack>
+
+        </MudPaper>
+
+
+
+
+    </div>
+
+
+
+
+</MudRTLProvider>
+
+@code {
+
+    public Response<List<Food>> resultFoods = new Response<List<Food>>();
+    public Response<List<User>> resultUsers = new Response<List<User>>();
+
+
+
+
+    private async Task OpenAddFoodDialog()
+    {
+
+
+        // DialogService.ShowAsync<AddFoodDialog>("Options Dialog");
+        var dialog = await DialogService.ShowAsync<AddFoodDialog>("افزودن غذای جدید");
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            Snackbar.Add("غذا با موفقیت اضافه شد", Severity.Success);
+        }
+    }
+
+    private async Task OpenEditFoodDialog()
+    {
+        resultFoods = await foodServices.GetAllAsync();
+        var parameters = new DialogParameters<EditFoodDialog>
+        {
+            { x => x.Foods, resultFoods.Data }
+        };
+
+        var dialog = await DialogService.ShowAsync<EditFoodDialog>("ویرایش غذا", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            Snackbar.Add("غذا با موفقیت ویرایش شد", Severity.Success);
+        }
+    }
+
+    private async Task OpenDeleteFoodDialog()
+    {
+        resultFoods = await foodServices.GetAllAsync();
+        var parameters = new DialogParameters<DeleteFoodDialog>
+        {
+            { x => x.Foods,  resultFoods.Data }
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteFoodDialog>("حذف غذا", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            Snackbar.Add("غذا با موفقیت حذف شد", Severity.Success);
+        }
+    }
+    private async Task OpenAddUserDialog(MouseEventArgs args)
+    {
+        var dialog = await DialogService.ShowAsync<AddUserDialog>("افزودن کاربر جدید");
+        var result = await dialog.Result;
+
+    }
+    private async Task OpenEditUserDialog(MouseEventArgs args)
+    {
+        resultUsers = await userServices.GetAllAsync<User>();
+        var parameters = new DialogParameters<EditUserDialog>
+        {
+            { x => x.Users, resultUsers.Data }
+        };
+
+        var dialog = await DialogService.ShowAsync<EditUserDialog>("ویرایش کاربر", parameters);
+        var result = await dialog.Result;
+        if (result == null) Snackbar.Add("خطایی در ویرایش کاربر به وجود آمد", Severity.Warning);
+        if (result!.Data != null )
+        {
+            Snackbar.Add("کاربر با موفقیت ویرایش شد", Severity.Success);
+        }
+    }
+    private async Task OpenDeleteUserDialog(MouseEventArgs args)
+    {
+        resultUsers = await userServices.GetAllAsync<User>();
+        var parameters = new DialogParameters<DeleteUserDialog>
+        {
+            { x => x.Users,  resultUsers.Data }
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteUserDialog>("حذف کاربر", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            Snackbar.Add("کاربر با موفقیت حذف شد", Severity.Success);
+        }
+    }
+}

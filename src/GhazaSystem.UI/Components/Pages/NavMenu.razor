@@ -1,10 +1,12 @@
 ﻿@rendermode InteractiveServer
 
-<MudDrawer @bind-Open="_open"
+<MudDrawer @bind-Open="@_open"
            Elevation="2"
            Variant="@DrawerVariant.Mini"
            OpenMiniOnHover="true"
            Anchor="Anchor.Start"
+           @onmouseover="@moseover"
+           @onmouseout = "@moseout"
            ClipMode="DrawerClipMode.Always"
            PreserveOpenState="true"
            Class="drawer-rtl"
@@ -17,10 +19,17 @@
                     Href="/"
                     Style="height: 48px; font-weight: 600;"
                     Match="NavLinkMatch.All">
-            پنل مدیریت غذا
+            غذا های این ماه
         </MudNavLink>
 
-        <MudDivider />
+        <MudDivider class="m-2" />
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.FilterList"
+                    Href="/manage-food"
+                    Match="NavLinkMatch.Prefix">
+            مدیریت غذا
+        </MudNavLink>
 
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.PlaylistAddCheck"
@@ -29,25 +38,13 @@
             انتخاب غذا
         </MudNavLink>
 
-        <MudNavLink Color="Color.Inherit"
-                    Icon="@Icons.Material.Filled.FilterList"
-                    Href="/manage-food"
-                    Match="NavLinkMatch.Prefix">
-            لیست غذاها
-        </MudNavLink>
-
-        <MudNavLink Color="Color.Inherit"
-                    Icon="@Icons.Material.Filled.PlaylistAdd"
-                    Href="/add-food"
-                    Match="NavLinkMatch.Prefix">
-            افزودن مدل غذا
-        </MudNavLink>
+        
 
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.PlaylistAddCheckCircle"
-                    Href="/"
+                    Href="/my-foods"
                     Match="NavLinkMatch.Prefix">
-            غذای این ماه
+            غذای انتخاب شده
         </MudNavLink>
 
         <MudNavLink Color="Color.Inherit"
@@ -55,6 +52,13 @@
                     Href="/report"
                     Match="NavLinkMatch.Prefix">
             گزارش
+        </MudNavLink>
+
+        <MudNavLink Color="Color.Inherit"
+                    Icon="@Icons.Material.Filled.LibraryBooks"
+                    Href="/manager"
+                    Match="NavLinkMatch.Prefix">
+            مدیریت پنل
         </MudNavLink>
     </MudNavMenu>
 </MudDrawer>

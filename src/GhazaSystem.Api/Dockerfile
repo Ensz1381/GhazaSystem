@@ -13,6 +13,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["./GhazaSystem.Api/GhazaSystem.Api.csproj", "./GhazaSystem.Api/"]
+COPY ["../GhazaSystem.Common/GhazaSystem.Common.csproj", "./GhazaSystem.Common/"]
 RUN dotnet restore "./GhazaSystem.Api/GhazaSystem.Api.csproj"
 COPY . .
 WORKDIR "/src/GhazaSystem.Api"

@@ -1,0 +1,327 @@
+﻿@page "/select-food"
+@inject DailyFoodServices dailyFoodServices
+@using GhazaSystem.Common.Services
+@using GhazaSystem.UI.Components.Dialog
+@using GhazaSystem.UI.Components.Dialog.Food
+@using GhazaSystem.UI.Services
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject UserServices userServices
+@inject FoodServices foodServices
+@inject DailyFoodServices dailyFoodServices
+@inject PersianCalendarService psc
+
+
+<PageTitle>انتخاب غذا</PageTitle>
+
+<MudRTLProvider RightToLeft="true">
+    <div style="height: 100vh; display: flex; flex-direction: column; background-color: #f5f5f5;">
+
+        <!-- هدر ثابت -->
+        <MudPaper Elevation="2" Square="true" Class="pa-4" Style="flex-shrink: 0;">
+            <MudStack Spacing="3">
+                <!-- ردیف اول: عنوان و دکمه رفرش -->
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.ManageAccounts" Class="ml-2" />
+                        مدیریت برنامه غذایی
+                    </MudText>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Refresh"
+                               Size="Size.Small"
+                               OnClick="LoadData">
+                        بروزرسانی
+                    </MudButton>
+                </MudStack>
+
+                <MudDivider />
+
+                <!-- ردیف دوم: انتخابگرها و دکمه‌های عملیات -->
+                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <!-- انتخاب ماه و سال -->
+                    <MudStack Row="true" Spacing="2">
+                        <MudSelect T="int"
+                                   @bind-Value="mont.MonthNumber"
+                                   Label="ماه"
+                                   Variant="Variant.Outlined"
+                                   Dense="true"
+                                   Style="min-width: 150px;">
+                            <MudSelectItem Value="1">فروردین</MudSelectItem>
+                            <MudSelectItem Value="2">اردیبهشت</MudSelectItem>
+                            <MudSelectItem Value="3">خرداد</MudSelectItem>
+                            <MudSelectItem Value="4">تیر</MudSelectItem>
+                            <MudSelectItem Value="5">مرداد</MudSelectItem>
+                            <MudSelectItem Value="6">شهریور</MudSelectItem>
+                            <MudSelectItem Value="7">مهر</MudSelectItem>
+                            <MudSelectItem Value="8">آبان</MudSelectItem>
+                            <MudSelectItem Value="9">آذر</MudSelectItem>
+                            <MudSelectItem Value="10">دی</MudSelectItem>
+                            <MudSelectItem Value="11">بهمن</MudSelectItem>
+                            <MudSelectItem Value="12">اسفند</MudSelectItem>
+                        </MudSelect>
+
+                        <MudSelect T="int"
+                                   @bind-Value="selectedYear"
+                                   Label="سال"
+                                   Variant="Variant.Outlined"
+                                   Dense="true"
+                                   Style="min-width: 120px;">
+                            <MudSelectItem Value="1402">1402</MudSelectItem>
+                            <MudSelectItem Value="1403">1403</MudSelectItem>
+                            <MudSelectItem Value="1404">1404</MudSelectItem>
+                        </MudSelect>
+                    </MudStack>
+
+                    
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        <!-- بخش اسکرول -->
+        <div style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px;">
+            <MudStack Spacing="3">
+
+                <!-- ساخت بخش داینامیک بر اساس دیتا ماه های گرفته شده -->
+                @foreach (var week in mont.MontWeek!)
+                {
+
+                    <MudPaper Elevation="2" Class="pa-3">
+                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3">
+                            <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                                <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="ml-1" />
+                                @psc.GetPersianMontName(mont.MonthNumber)  @week.FirstDay ام تا @week.LastDay ام
+                            </MudText>
+
+                            <!-- دکمه قفل هفته -->
+                            <MudToggleIconButton @bind-Toggled="@week1Locked"
+                                                 Icon="@Icons.Material.Filled.LockOpen"
+                                                 ToggledIcon="@Icons.Material.Filled.Lock"
+                                                 Color="@Color.Default"
+                                                 ToggledColor="@Color.Error"
+                                                 Size="Size.Small"
+                                                 Title="@(week1Locked ? "قفل شده" : "قفل نشده")" />
+                        </MudStack>
+
+                        <div style="display: flex; gap: 8px;">
+
+                            @foreach (var day in week.WeekDay!)
+                            {
+                                <div style="flex: 1; min-width: 0;">
+                                    @if (day == null) { }
+                                    else if (day.DayName == "جمعه")
+                                    {
+                                        <MudCard Elevation="1" Class="mud-height-full" Style="background-color: #fafafa;">
+                                            <MudCardContent Class="pa-3 d-flex flex-column align-center justify-center" Style="min-height: 200px;">
+                                                <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                                                    <MudText Typo="Typo.subtitle2" Color="Color.Default" Style="font-weight: 600;">@day.DayName</MudText>
+                                                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@day.DayNumber</MudChip>
+                                                    <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" Class="mt-2" />
+                                                    <MudText Typo="Typo.caption" Color="Color.Default">تعطیل</MudText>
+                                                </MudStack>
+                                            </MudCardContent>
+                                        </MudCard>
+                                    }
+                                    else
+                                    {
+                                        <MudCard Elevation="3" Class="mud-height-full">
+                                            <MudCardContent Class="pa-3">
+                                                <MudStack Spacing="2">
+                                                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+                                                        <MudText Typo="Typo.subtitle2" Color="Color.Primary" Style="font-weight: 600;">@day.DayName</MudText>
+                                                        <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.DayNumber</MudChip>
+                                                    </MudStack>
+
+                                                    <MudSelect T="Daily_Food"
+                                                               FullWidth="true"
+                                                               MultiSelection="true"
+                                                               SelectedValuesChanged="@((selectedFoods) => OnSelectionChanged(selectedFoods, day.GregorianDate))"
+                                                               Label="انتخاب غذا"
+                                                               Variant="Variant.Outlined"
+                                                               Dense="false"
+                                                               Disabled="@week1Locked"
+                                                               AdornmentIcon="@Icons.Material.Filled.Restaurant"
+                                                               AdornmentColor="Color.Primary">
+                                                        @foreach (var food in availableFoods)
+                                                        {
+                                                            @if (food.Date == day.GregorianDate)
+                                                            {
+                                                                <MudSelectItem T="Daily_Food" Value="@food"
+                                                                           Style=" display: flex;
+                                                                                                               flex-direction: row-reverse;
+                                                                                                               padding-left:0;padding-right:0;
+                                                                                                             ">
+                                                                <MudChip T="Food" Style="width: 95%;
+                                                                                                                     justify-content: space-between;
+                                                                                                                    ">
+                                                                    <ChildContent>@food.food!.Name</ChildContent>
+                                                                    <AvatarContent>
+                                                                        <MudAvatar>
+                                                                            <MudImage Src=@food.food!.Photos></MudImage>
+                                                                        </MudAvatar>
+                                                                    </AvatarContent>
+
+                                                                </MudChip>
+                                                            </MudSelectItem>
+                                                            }
+                                                        }
+                                                    </MudSelect>
+
+                                                    @foreach (var item in List_Daily_FoodDTOs_User)
+                                                    {
+
+                                                        @if (item.Date == day.GregorianDate)
+                                                        {
+                                                            <MudStack Spacing="1" Class="mt-2">
+                                                                <MudChip T="Food" Style="width: 95%;
+                                                                                                                                             justify-content: space-between;
+                                                                                                                                            ">
+                                                                    <ChildContent>@item.food.Name</ChildContent>
+                                                                    <AvatarContent>
+                                                                        <MudAvatar>
+                                                                            <MudImage Src=@item.food.Photos></MudImage>
+                                                                        </MudAvatar>
+                                                                    </AvatarContent>
+
+                                                                </MudChip>
+                                                            </MudStack>
+                                                        }
+
+                                                    }
+                                                </MudStack>
+                                            </MudCardContent>
+                                        </MudCard>
+                                    }
+
+
+
+                                </div>
+
+                            }
+                        </div>
+                    </MudPaper>
+                }
+
+                <!-- دکمه ذخیره -->
+                <MudPaper Elevation="2" Class="pa-4">
+                    <MudStack Row="true" Justify="Justify.Center" Spacing="2">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Success"
+                                   Size="Size.Large"
+                                   StartIcon="@Icons.Material.Filled.Save"
+                                   OnClick="SaveChanges">
+                            ذخیره تغییرات
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Default"
+                                   Size="Size.Large"
+                                   StartIcon="@Icons.Material.Filled.Cancel"
+                                   OnClick="CancelChanges">
+                            انصراف
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+
+            </MudStack>
+        </div>
+    </div>
+</MudRTLProvider>
+
+@code {
+    private int selectedMonth = 1;
+    private int selectedYear = 1403;
+
+    private bool week1Locked = false;
+    private bool week2Locked = false;
+    private bool week3Locked = false;
+
+    public CalendarMont mont = new CalendarMont();
+    public List<Daily_Food> availableFoods = new List<Daily_Food>();
+    public Response<List<Daily_Food>> resultFoods = new Response<List<Daily_Food>>();
+    public List<Daily_Food> List_Daily_FoodDTOs_User = new List<Daily_Food>();
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDailyFoods();
+        resultFoods = await dailyFoodServices.GetMontAsync();
+        availableFoods = resultFoods.Data!;
+    }
+
+    public void GetMont()
+    {
+        mont = psc.AutoPersianCalendar();
+        selectedMonth = mont.MonthNumber;
+    }
+
+
+    protected override void OnInitialized()
+    {
+        GetMont();
+        base.OnInitialized();
+
+    }
+
+    public async Task GetDailyFoods()
+    {
+        var response = await dailyFoodServices.GetListDailyFoodsUser(new ListUserDailyFoodsDTO()
+        { 
+            UserId = userServices.LocalUser!.Id,
+            Mount = mont.MonthNumber
+
+        });
+        if (response.Data != null)
+        {
+            List_Daily_FoodDTOs_User = response.Data;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SaveChanges()
+    {
+        //Snackbar.Add("در حال ذخیره تغییرات...", Severity.Info);
+        var resuslt = await userServices.UpdateDailyFoodAsync(new ListUserDailyFoodsDTO()
+        {
+            UserId = userServices.LocalUser!.Id,
+            ListDailyFoods = List_Daily_FoodDTOs_User,
+            Mount = mont.MonthNumber
+        });
+
+        if (resuslt.IsSuccess) Snackbar.Add("تغییرات با موفقیت ذخیره شد", Severity.Success);
+        else Snackbar.Add(resuslt.Message ?? "مشکلی در ثبت به وجود آمد", Severity.Warning);
+    }
+
+    private void CancelChanges()
+    {
+
+        Snackbar.Add("تغییرات لغو شد", Severity.Warning);
+    }
+
+
+    private void OnSelectionChanged(IEnumerable<Daily_Food> args, DateOnly date)
+    {
+        try
+        {
+            List_Daily_FoodDTOs_User.RemoveAll(sabt => sabt.Date.Equals(date));
+        }
+        catch
+        {
+            List_Daily_FoodDTOs_User.RemoveAll(sabt => sabt.Date.Equals(date));
+        }
+        foreach (var item in args)
+        {
+            
+            List_Daily_FoodDTOs_User.Add(item);
+        }
+        StateHasChanged();
+    }
+    private Task LoadData(MouseEventArgs args)
+    {
+        throw new NotImplementedException();
+    }
+}

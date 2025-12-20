@@ -1,11 +1,15 @@
 ﻿
-namespace GhazaSystem.Common.Data
+namespace GhazaSystem.Common.Data;
+
+public class Daily_Food: BasiceData
 {
-    public class Daily_Food: BasiceData
-    {
-        public required Food food { get; set; }
-        public required DateOnly Date { get; set; }
+
+    public Guid foodId { get; set; }
+    public Food? food { get; set; } 
+    public  DateOnly Date { get; set; }
+    public List<User>? users { get; set; }
+
+    public int Mount { get; set; }
 
 
-    }
 }

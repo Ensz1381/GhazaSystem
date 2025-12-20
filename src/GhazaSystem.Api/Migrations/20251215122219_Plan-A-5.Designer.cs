@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GhazaSystem.Api.Migrations
 {
     [DbContext(typeof(GhazaDbContext))]
-    [Migration("20251025103856_test-first")]
-    partial class testfirst
+    [Migration("20251215122219_Plan-A-5")]
+    partial class PlanA5
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,44 @@ namespace GhazaSystem.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Food", b =>
+            modelBuilder.Entity("Daily_FoodUser", b =>
+                {
+                    b.Property<Guid>("Daily_FoodsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("usersId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Daily_FoodsId", "usersId");
+
+                    b.HasIndex("usersId");
+
+                    b.ToTable("Daily_FoodUser");
+                });
+
+            modelBuilder.Entity("GhazaSystem.Common.Data.Daily_Food", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Mount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("foodId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("foodId");
+
+                    b.ToTable("Daily_Foods");
+                });
+
+            modelBuilder.Entity("GhazaSystem.Common.Data.Food", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,15 +72,12 @@ namespace GhazaSystem.Api.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Photos")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -51,10 +85,13 @@ namespace GhazaSystem.Api.Migrations
                     b.ToTable("Food");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Food_Change", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Food_Change", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Food_ChangedId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("LoginId")
@@ -65,12 +102,14 @@ namespace GhazaSystem.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Food_ChangedId");
+
                     b.HasIndex("LoginId");
 
                     b.ToTable("Food_Change");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Login", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Login", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,48 +138,80 @@ namespace GhazaSystem.Api.Migrations
                     b.ToTable("Login");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.User", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("First_Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Last_Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("National_Code")
-                        .HasColumnType("integer");
+                    b.Property<long>("National_Code")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Food_Change", b =>
+            modelBuilder.Entity("Daily_FoodUser", b =>
                 {
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.Login", null)
-                        .WithMany("Food_Changes")
-                        .HasForeignKey("LoginId");
+                    b.HasOne("GhazaSystem.Common.Data.Daily_Food", null)
+                        .WithMany()
+                        .HasForeignKey("Daily_FoodsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GhazaSystem.Common.Data.User", null)
+                        .WithMany()
+                        .HasForeignKey("usersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Login", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Daily_Food", b =>
                 {
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.User", null)
+                    b.HasOne("GhazaSystem.Common.Data.Food", "food")
+                        .WithMany()
+                        .HasForeignKey("foodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("food");
+                });
+
+            modelBuilder.Entity("GhazaSystem.Common.Data.Food_Change", b =>
+                {
+                    b.HasOne("GhazaSystem.Common.Data.Daily_Food", "Food_Changed")
+                        .WithMany()
+                        .HasForeignKey("Food_ChangedId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GhazaSystem.Common.Data.Login", null)
+                        .WithMany("Food_Changes")
+                        .HasForeignKey("LoginId");
+
+                    b.Navigation("Food_Changed");
+                });
+
+            modelBuilder.Entity("GhazaSystem.Common.Data.Login", b =>
+                {
+                    b.HasOne("GhazaSystem.Common.Data.User", null)
                         .WithMany("Logins")
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Login", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Login", b =>
                 {
                     b.Navigation("Food_Changes");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.User", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.User", b =>
                 {
                     b.Navigation("Logins");
                 });

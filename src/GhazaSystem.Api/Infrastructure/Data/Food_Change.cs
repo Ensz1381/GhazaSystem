@@ -1,13 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using GhazaSystem.Common.Data;
 
-namespace GhazaSystem.Api.Infrastructure.Data;
 
-public class Food_Change : BasiceData
-{
-    public required Daily_Food Food_Changed { get; set; }
-    public required Type_Of_Change Type_of_changes { get; set; }
-}
 public class Food_ChangeConfiguration : IEntityTypeConfiguration<Food_Change>
 {
     public void Configure(EntityTypeBuilder<Food_Change> builder)

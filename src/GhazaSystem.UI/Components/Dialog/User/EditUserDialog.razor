@@ -1,0 +1,93 @@
+﻿@using GhazaSystem.UI.Services
+@rendermode InteractiveServer
+@inject ISnackbar Snackbar
+@inject UserServices userServices
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudSelect T="User"
+                       @bind-Value="selectedUser"
+                       Placeholder="انتخاب کنید"
+                       Label="انتخاب کاربر برای ویرایش"
+                       Variant="Variant.Outlined"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Restaurant">
+                @foreach (var user in Users)
+                {
+                    <MudSelectItem Value="@user">@user.First_Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(selectedUser.First_Name))
+            {
+                <MudDivider />
+
+                <MudTextField @bind-Value="newUser.First_Name"
+                              Label="نام جدید کاربر"
+                              Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="selectedUser.Last_Name"
+                              Label="نام خانوادگی  جدید"
+                              Variant="Variant.Outlined"
+                              Lines="1" />
+
+                <MudNumericField @bind-Value="newUser.National_Code"
+                                 Label="کد ملی کاربر"
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.End"
+                                 AdornmentText="کد جدید" />
+
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit"
+                   Color="Color.Warning"
+                   Variant="Variant.Filled"
+                   Disabled="@string.IsNullOrEmpty(selectedUser.First_Name)">
+            ویرایش
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<User> Users { get; set; } = new();
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (Users == null)
+        {
+            var response = await userServices.GetAllAsync<User>();
+            if (response.Data == null) Snackbar.Add("کاربری پیدا نشد", Severity.Warning);
+            else Users = response.Data; ;
+
+        }
+    }
+
+
+    private User selectedUser = new User();
+
+
+    private User newUser = new User();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrEmpty(selectedUser.First_Name)) return;
+        newUser.Id = selectedUser.Id;
+        if (string.IsNullOrEmpty(newUser.Last_Name)) newUser.Last_Name = selectedUser.Last_Name;
+        if (newUser.National_Code <0) newUser.National_Code = selectedUser.National_Code;
+
+        var result = await userServices.UpdateAsync(newUser);
+
+        // اینجا کد ارسال به API
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+
+
+}

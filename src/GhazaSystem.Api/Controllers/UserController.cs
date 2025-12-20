@@ -4,6 +4,7 @@ using GhazaSystem.Api.Services;
 using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using GhazaSystem.Common.Data;
 
 namespace GhazaSystem.Api.Controllers
 {
@@ -14,18 +15,27 @@ namespace GhazaSystem.Api.Controllers
         ) : ControllerBase
     {
         [HttpGet("all")]
-        public async Task<Response<List<User>>?> All() {
+        public async Task<Response<List<User>>> All() {
             var users = await userRepository.GetAllAsync();
-            if (users != null) return ResponseBuilder.Failure<List<User>>();
+            if (users == null) return ResponseBuilder.Failure<List<User>>();
             
-            return ResponseBuilder.Success<List<User>>(users!.Data!);
+            return ResponseBuilder.Success<List<User>>(users.Data!);
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<Response<object>> delete (Guid id)
         {
             await userRepository.DeleteAsync(id);
+           
             return ResponseBuilder.Success(message: "کاربر با موفقیت پاک شد.");
+        }
+        [HttpDelete("deletedaily/{id}/{mont}")]
+        public async Task<Response<object>> deleteDaily(Guid id,int mont)
+        {
+            ListUserDailyFoodsDTO model = new ListUserDailyFoodsDTO() { UserId = id, Mount = mont};
+            var result = await userRepository.SetListAsync(model);
+
+            return ResponseBuilder.Success(message: "غذا های کاربر با موفقیت پاک شد" + result.Message);
         }
 
         [HttpPost("add")]
@@ -55,6 +65,38 @@ namespace GhazaSystem.Api.Controllers
             await userRepository.UpdateAsync(user);
             return ResponseBuilder.Success();
         }
+
+        [HttpPost("updatedaily")]
+        public async Task<Response<object>> UpdateDaily(ListUserDailyFoodsDTO model)
+        {
+            try
+            {
+                var resremove = await userRepository.SetListAsync(model);
+                if (resremove.IsSuccess != true) return  ResponseBuilder.Failure(message: "حذف غذای کاربران به مشکل خورد"+resremove!.Message);
+                //Guid guid = (Guid)model.UserId!;
+                //var responce = await userRepository.GetByIdAsync(guid);
+                //User user = responce.Data!;
+                //user.Daily_Foods = model.ListDailyFoods;
+                //Console.WriteLine("..............................");
+                //Console.WriteLine(user.Daily_Foods!.Count.ToString() +"..............................");
+                //if (user.Daily_Foods != null)
+                //{
+                //    foreach (var food in model.ListDailyFoods)
+                //    {
+                 //       Console.WriteLine(food.food.Name + "number food :" + food.food.Id +"number daily food :"+food.Id+ food.Date.ToString() + food.Mount + "..............................");
+                //    }
+                //}
+
+                //Console.WriteLine("..............................");
+                //await userRepository.UpdateAsync(user);
+                return ResponseBuilder.Success();
+            }
+            catch (Exception ex)
+            {
+                return ResponseBuilder.Failure(message: ex.Message);
+            }
+        }
+
 
         [HttpGet("national-code/{code}")]
         public async Task<Response<User>> GetById(long code)

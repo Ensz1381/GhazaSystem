@@ -1,0 +1,73 @@
+﻿@using GhazaSystem.UI.Services
+@inject ISnackbar Snackbar
+@inject ProtectedLocalStorage LStorage
+@inject UserServices userServices
+<MudDialog>
+
+    <DialogContent>
+        <MudStack Spacing="3">
+
+            <MudAlert Severity="Severity.Info">
+                <MudText>لطفا کد ملی خود را وارد کنید</MudText>
+            </MudAlert>
+
+
+            <MudTextField T="long"
+                          @bind-Value="Code"
+                          Placeholder="0123456789"
+                          Label="کد ملی"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Restaurant" />
+
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Success" Variant="Variant.Filled">ورود</MudButton>
+    </DialogActions>
+
+</MudDialog>
+
+
+
+@code {
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private long Code;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        await userServices.SetLocalUser(Code);
+        if (userServices.LocalUser != null)
+        {
+            Snackbar.Add($"{userServices.LocalUser.First_Name} {userServices.LocalUser.First_Name} با موفقیت وارد شدید.", Severity.Success);
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.Add("خطایی در ورود به سیستم رخ داد", Severity.Warning);
+            MudDialog.Close();
+        }
+
+    }
+}
+<!-- await userServices.SetLocalUser(Code);
+        Snackbar.Add("درحال ورود به سیستم ....", Severity.Info);
+        if (userServices.LocalUser != null)
+        {
+            Snackbar.Add($"{userServices.LocalUser.First_Name} {userServices.LocalUser.First_Name} با موفقیت وارد شدید.", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(userServices.LocalUser));
+            await userServices.SetLocalUser(Code);
+
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("خطایی در ورود به سیستم رخ داد", Severity.Warning);
+        }
+        -->

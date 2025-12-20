@@ -3,6 +3,7 @@ using GhazaSystem.Api.Interfaces;
 using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using GhazaSystem.Common.Data;
 
 namespace GhazaSystem.Api.Controllers;
 
@@ -51,4 +52,5 @@ public class FoodController(
         if (response.IsSuccess == true) return ResponseBuilder.Success(response.Data!);
         return ResponseBuilder.Failure<Food>();
     }
+    
 }

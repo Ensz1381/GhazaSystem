@@ -1,0 +1,78 @@
+﻿@using GhazaSystem.UI.Services
+@rendermode InteractiveServer
+@inject UserServices userServices
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudAlert Severity="Severity.Warning">
+                <MudText>⚠️ توجه: این عملیات قابل بازگشت نیست!</MudText>
+            </MudAlert>
+
+            <MudSelect T="User"
+                       TextFunc="GetDisplayName"
+                       @bind-Value="selectedUser"
+                       Label="انتخاب کاربر برای حذف"
+                       Variant="Variant.Outlined"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Restaurant">
+                @foreach (var user in Users)
+                {
+                    <MudSelectItem T="User" Value="@user"
+                                   Style=" display: flex;
+                                               flex-direction: row-reverse;
+                                               padding-left:0;padding-right:0;
+                                              ">
+                        <MudChip T="Food" Style="width: 95%;
+                                                     justify-content: space-between;
+                                                    ">
+                            <ChildContent>@user.First_Name @user.Last_Name</ChildContent>
+                            
+
+                        </MudChip>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(selectedUser.First_Name))
+            {
+                <MudPaper Class="pa-4" Outlined="true">
+                    <MudText Typo="Typo.body1" Color="Color.Error">
+                        آیا از حذف  <strong>@selectedUser.First_Name</strong> مطمئن هستید؟
+                    </MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit"
+                   Color="Color.Error"
+                   Variant="Variant.Filled"
+                   Disabled="@string.IsNullOrEmpty(selectedUser.First_Name)">
+            حذف
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<User> Users { get; set; } = new();
+
+    private User selectedUser = new User();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrEmpty(selectedUser.First_Name)) return;
+        await userServices.DeleteAsync<User>(selectedUser.Id);
+        // اینجا کد حذف از API
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+    private string GetDisplayName(User? user)
+    {
+        if (user == null) return "انتخاب کنید";
+        return $"{user.First_Name}{user.Last_Name}";
+    }
+}

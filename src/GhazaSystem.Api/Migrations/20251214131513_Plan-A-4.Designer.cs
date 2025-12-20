@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GhazaSystem.Api.Migrations
 {
     [DbContext(typeof(GhazaDbContext))]
-    [Migration("20251025104218_test-first-1")]
-    partial class testfirst1
+    [Migration("20251214131513_Plan-A-4")]
+    partial class PlanA4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace GhazaSystem.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Daily_Food", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Daily_Food", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,6 +33,9 @@ namespace GhazaSystem.Api.Migrations
 
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
+
+                    b.Property<int>("Mount")
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
@@ -46,10 +49,10 @@ namespace GhazaSystem.Api.Migrations
 
                     b.HasIndex("foodId");
 
-                    b.ToTable("Daily_Food");
+                    b.ToTable("Daily_Foods");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Food", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Food", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -59,15 +62,12 @@ namespace GhazaSystem.Api.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Photos")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -75,7 +75,7 @@ namespace GhazaSystem.Api.Migrations
                     b.ToTable("Food");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Food_Change", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Food_Change", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,7 @@ namespace GhazaSystem.Api.Migrations
                     b.ToTable("Food_Change");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Login", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Login", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,35 +128,33 @@ namespace GhazaSystem.Api.Migrations
                     b.ToTable("Login");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.User", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("First_Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Last_Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("National_Code")
-                        .HasColumnType("integer");
+                    b.Property<long>("National_Code")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Daily_Food", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Daily_Food", b =>
                 {
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.User", null)
+                    b.HasOne("GhazaSystem.Common.Data.User", null)
                         .WithMany("Daily_Foods")
                         .HasForeignKey("UserId");
 
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.Food", "food")
+                    b.HasOne("GhazaSystem.Common.Data.Food", "food")
                         .WithMany()
                         .HasForeignKey("foodId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -165,34 +163,34 @@ namespace GhazaSystem.Api.Migrations
                     b.Navigation("food");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Food_Change", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Food_Change", b =>
                 {
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.Daily_Food", "Food_Changed")
+                    b.HasOne("GhazaSystem.Common.Data.Daily_Food", "Food_Changed")
                         .WithMany()
                         .HasForeignKey("Food_ChangedId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.Login", null)
+                    b.HasOne("GhazaSystem.Common.Data.Login", null)
                         .WithMany("Food_Changes")
                         .HasForeignKey("LoginId");
 
                     b.Navigation("Food_Changed");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Login", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Login", b =>
                 {
-                    b.HasOne("GhazaSystem.Api.Infrastructure.Data.User", null)
+                    b.HasOne("GhazaSystem.Common.Data.User", null)
                         .WithMany("Logins")
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.Login", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.Login", b =>
                 {
                     b.Navigation("Food_Changes");
                 });
 
-            modelBuilder.Entity("GhazaSystem.Api.Infrastructure.Data.User", b =>
+            modelBuilder.Entity("GhazaSystem.Common.Data.User", b =>
                 {
                     b.Navigation("Daily_Foods");
 

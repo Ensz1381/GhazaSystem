@@ -1,14 +1,20 @@
-﻿
-@page "/"
+﻿@page "/"
 @using System.Net.WebSockets
+@using GhazaSystem.Common.Services
+@using GhazaSystem.UI.Components.Dialog.User
 @using GhazaSystem.UI.Services
+@inject IDialogService DialogService
 @inject UserServices LoginService
+@inject DailyFoodServices dailyFoodServices
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
+@inject ProtectedLocalStorage LStorage
 @inject IJSRuntime JS
+@inject PersianCalendarService psc
 @rendermode InteractiveServer
 
-<PageTitle>منوی ماهانه - غذای سازمانی</PageTitle>
+
+<PageTitle>منوی ماهانه</PageTitle>
 
 
 <MudRTLProvider RightToLeft="true">
@@ -20,371 +26,238 @@
                 <MudStack Spacing="0">
                     <MudText Typo="Typo.h5" Color="Color.Primary">
                         <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
-                        برنامه غذایی ماه آینده
+                        برنامه غذایی ماه جاری
                     </MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-10">
-                        دی ماه 1404
+                        @psc.GetPersianMontName(mont.MonthNumber) ماه @mont.YearNumber
                     </MudText>
                 </MudStack>
-                
+                <MudStack Style="display: flex;">
                 <MudButton Variant="Variant.Filled" 
                           Color="Color.Primary" 
                           StartIcon="@Icons.Material.Filled.Refresh"
                           Size="Size.Small">
                     بروزرسانی
                 </MudButton>
+                @if (LoginService.LocalUser == null)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Login"
+                               OnClick="GetUser"
+                               Size="Size.Small">
+                        ورود
+                    </MudButton>
+                }
+                </MudStack>
             </MudStack>
         </MudPaper>
-
+        
         <!-- بخش اسکرول -->
-        <div style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px;">
-            <MudStack Spacing="3">
-                
-                <!-- هفته اول -->
-                <MudPaper Elevation="2" Class="pa-3">
-                    <MudText Typo="Typo.subtitle1" Class="mb-3 mr-2" Color="Color.Secondary">
-                        <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="ml-1" />
-                        هفته اول - 1 تا 7 مهر
-                    </MudText>
-                    
-                    <div style="display: flex; gap: 8px;">
-                        @foreach (var day in GetWeek1())
-                        {
-                            <div style="flex: 1; min-width: 0;">
-                                @if (day.IsHoliday)
+        @if(LoginService.LocalUser != null)
+        {
+            <div style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px;">
+                <MudStack Spacing="3">
+
+                    <!-- ساخت بخش داینامیک بر اساس دیتا ماه های گرفته شده -->
+                    @foreach (var week in mont.MontWeek!)
+                    {
+
+                        <MudPaper Elevation="2" Class="pa-3">
+                            <MudText Typo="Typo.subtitle1" Class="mb-3 mr-2" Color="Color.Secondary">
+                                <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="ml-1" />
+                                @psc.GetPersianMontName(mont.MonthNumber)  @week.FirstDay ام تا @week.LastDay ام
+                            </MudText>
+
+                            <div style="display: flex; gap: 8px;">
+                                @foreach (var day in week.WeekDay!)
                                 {
-                                    <MudCard Elevation="1" Class="mud-height-full" Style="background-color: #fafafa;">
-                                        <MudCardContent Class="pa-3 d-flex flex-column align-center justify-center" Style="min-height: 150px;">
-                                            <MudStack Spacing="1" AlignItems="AlignItems.Center">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2" Style="width: 100%;">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Default" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" />
-                                                <MudText Typo="Typo.caption" Color="Color.Default">تعطیل</MudText>
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                                else
-                                {
-                                    <MudCard Elevation="3" Class="mud-height-full">
-                                        <MudCardContent Class="pa-3">
-                                            <MudStack Spacing="2">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                
-                                                @foreach (var food in day.Foods)
-                                                {
-                                                    <MudChip T="string" T="string" Icon="@Icons.Material.Filled.Restaurant" 
-                                                            Color="@food.Color" 
-                                                            Size="Size.Small"
-                                                            Style="justify-content: start;">
-                                                        @food.Name
-                                                    </MudChip>
-                                                }
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
+
+                                    <div style="flex: 1; min-width: 0;">
+                                        @if (day == null)
+                                        {
+
+                                        }
+                                        else if (day.DayName == "جمعه")
+                                        {
+                                            <MudCard Elevation="1" Class="mud-height-full" Style="background-color: #fafafa;">
+                                                <MudCardContent Class="pa-3 d-flex flex-column align-center justify-center" Style="min-height: 150px;">
+                                                    <MudStack Spacing="1" AlignItems="AlignItems.Center">
+                                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2" Style="width: 100%;">
+                                                            <MudText Typo="Typo.subtitle2" Color="Color.Default" Style="font-weight: 600;">@day.DayName</MudText>
+                                                            <MudChip T="string" T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@day.DayNumber</MudChip>
+                                                        </MudStack>
+                                                        <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" />
+                                                        <MudText Typo="Typo.caption" Color="Color.Default">تعطیل</MudText>
+                                                    </MudStack>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                        else
+                                        {
+                                            <MudCard Elevation="3" Class="mud-height-full">
+                                                <MudCardContent Class="pa-3">
+                                                    <MudStack Spacing="2">
+                                                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
+                                                            <MudText Typo="Typo.subtitle2" Color="Color.Primary" Style="font-weight: 600;">@day.DayName</MudText>
+                                                            <MudChip T="string" T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.DayNumber </MudChip>
+                                                        </MudStack>
+                                                        @if (list_daily_Foods != null)
+                                                        {
+
+
+                                                            @foreach (var food in list_daily_Foods)
+                                                            {
+
+
+                                                                if (food.Date == day.GregorianDate)
+                                                                {
+                                                                    <MudChip T="Food" Style="width: 95%;
+                                                                                                                                 justify-content: space-between;
+                                                                                                                                ">
+                                                                        <ChildContent>@food.food!.Name</ChildContent>
+                                                                        <AvatarContent>
+                                                                            <MudAvatar>
+                                                                                <MudImage Src=@food.food!.Photos></MudImage>
+                                                                            </MudAvatar>
+                                                                        </AvatarContent>
+
+                                                                    </MudChip>
+                                                                }
+                                                            }
+
+                                                        }
+
+                                                    </MudStack>
+                                                </MudCardContent>
+                                            </MudCard>
+                                        }
+                                    </div>
                                 }
                             </div>
-                        }
-                    </div>
-                </MudPaper>
+                        </MudPaper>
 
-                <!-- هفته دوم -->
-                <MudPaper Elevation="2" Class="pa-3">
-                    <MudText Typo="Typo.subtitle1" Class="mb-3 mr-2" Color="Color.Secondary">
-                        <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="ml-1" />
-                        هفته دوم - 8 تا 14 مهر
-                    </MudText>
-                    
-                    <div style="display: flex; gap: 8px;">
-                        @foreach (var day in GetWeek2())
-                        {
-                            <div style="flex: 1; min-width: 0;">
-                                @if (day.IsHoliday)
-                                {
-                                    <MudCard Elevation="1" Class="mud-height-full" Style="background-color: #fafafa;">
-                                        <MudCardContent Class="pa-3 d-flex flex-column align-center justify-center" Style="min-height: 150px;">
-                                            <MudStack Spacing="1" AlignItems="AlignItems.Center">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2" Style="width: 100%;">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Default" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" />
-                                                <MudText Typo="Typo.caption" Color="Color.Default">تعطیل</MudText>
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                                else
-                                {
-                                    <MudCard Elevation="3" Class="mud-height-full">
-                                        <MudCardContent Class="pa-3">
-                                            <MudStack Spacing="2">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                
-                                                @foreach (var food in day.Foods)
-                                                {
-                                                    <MudChip T="string" T="string" Icon="@Icons.Material.Filled.Restaurant" 
-                                                            Color="@food.Color" 
-                                                            Size="Size.Small"
-                                                            Style="justify-content: start;">
-                                                        @food.Name
-                                                    </MudChip>
-                                                }
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                            </div>
-                        }
-                    </div>
-                </MudPaper>
+                    }
+                    <!--  پایان بخش داینامیک -->
 
-                <!-- هفته سوم -->
-                <MudPaper Elevation="2" Class="pa-3">
-                    <MudText Typo="Typo.subtitle1" Class="mb-3 mr-2" Color="Color.Secondary">
-                        <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="ml-1" />
-                        هفته سوم - 15 تا 21 مهر
-                    </MudText>
-                    
-                    <div style="display: flex; gap: 8px;">
-                        @foreach (var day in GetWeek3())
-                        {
-                            <div style="flex: 1; min-width: 0;">
-                                @if (day.IsHoliday)
-                                {
-                                    <MudCard Elevation="1" Class="mud-height-full" Style="background-color: #fafafa;">
-                                        <MudCardContent Class="pa-3 d-flex flex-column align-center justify-center" Style="min-height: 150px;">
-                                            <MudStack Spacing="1" AlignItems="AlignItems.Center">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2" Style="width: 100%;">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Default" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" />
-                                                <MudText Typo="Typo.caption" Color="Color.Default">تعطیل</MudText>
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                                else
-                                {
-                                    <MudCard Elevation="3" Class="mud-height-full">
-                                        <MudCardContent Class="pa-3">
-                                            <MudStack Spacing="2">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                
-                                                @foreach (var food in day.Foods)
-                                                {
-                                                    <MudChip T="string" T="string" Icon="@Icons.Material.Filled.Restaurant" 
-                                                            Color="@food.Color" 
-                                                            Size="Size.Small"
-                                                            Style="justify-content: start;">
-                                                        @food.Name
-                                                    </MudChip>
-                                                }
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                            </div>
-                        }
-                    </div>
-                </MudPaper>
+                </MudStack>
+            </div>
 
-                <!-- هفته چهارم -->
-                <MudPaper Elevation="2" Class="pa-3">
-                    <MudText Typo="Typo.subtitle1" Class="mb-3 mr-2" Color="Color.Secondary">
-                        <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="Size.Small" Class="ml-1" />
-                        هفته چهارم - 22 تا 28 مهر
-                    </MudText>
-                    
-                    <div style="display: flex; gap: 8px;">
-                        @foreach (var day in GetWeek4())
-                        {
-                            <div style="flex: 1; min-width: 0;">
-                                @if (day.IsHoliday)
-                                {
-                                    <MudCard Elevation="1" Class="mud-height-full" Style="background-color: #fafafa;">
-                                        <MudCardContent Class="pa-3 d-flex flex-column align-center justify-center" Style="min-height: 150px;">
-                                            <MudStack Spacing="1" AlignItems="AlignItems.Center">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2" Style="width: 100%;">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Default" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                <MudIcon Icon="@Icons.Material.Filled.EventBusy" Size="Size.Large" Color="Color.Default" />
-                                                <MudText Typo="Typo.caption" Color="Color.Default">تعطیل</MudText>
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                                else
-                                {
-                                    <MudCard Elevation="3" Class="mud-height-full">
-                                        <MudCardContent Class="pa-3">
-                                            <MudStack Spacing="2">
-                                                <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-1">
-                                                    <MudText Typo="Typo.subtitle2" Color="Color.Primary" Style="font-weight: 600;">@day.DayName</MudText>
-                                                    <MudChip T="string" T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Text">@day.Date</MudChip>
-                                                </MudStack>
-                                                
-                                                @foreach (var food in day.Foods)
-                                                {
-                                                    <MudChip T="string" T="string" Icon="@Icons.Material.Filled.Restaurant" 
-                                                            Color="@food.Color" 
-                                                            Size="Size.Small"
-                                                            Style="justify-content: start;">
-                                                        @food.Name
-                                                    </MudChip>
-                                                }
-                                            </MudStack>
-                                        </MudCardContent>
-                                    </MudCard>
-                                }
-                            </div>
-                        }
-                    </div>
-                </MudPaper>
+        }
 
-            </MudStack>
-        </div>
     </div>
 </MudRTLProvider>
 
 @code {
-    // مدل داده (موقتی - بعداً از API می‌گیری)
-    private class DayInfo
+    private User? localyUser = null;
+    public CalendarMont mont = new CalendarMont();
+    public List<Daily_Food> list_daily_Foods = new List<Daily_Food>();
+    private bool _isDataLoaded = false;
+
+    public async Task GetDailyFoods()
     {
-        public string DayName { get; set; } = "";
-        public string Date { get; set; } = "";
-        public bool IsHoliday { get; set; }
-        public List<FoodInfo> Foods { get; set; } = new();
+        var response = await dailyFoodServices.GetMontAsync();
+        list_daily_Foods = response.Data!;
+        StateHasChanged();
     }
 
-    private class FoodInfo
+
+
+    public void GetMont()
     {
-        public string Name { get; set; } = "";
-        public Color Color { get; set; }
+        mont = psc.AutoPersianCalendar();
     }
 
-    private List<DayInfo> GetWeek1()
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return new List<DayInfo>
+
+        if (firstRender && !_isDataLoaded)
         {
-            new() { DayName = "شنبه", Date = "1 مهر", Foods = new() 
-                { 
-                    new() { Name = "قورمه سبزی", Color = Color.Success },
-                    new() { Name = "زرشک پلو", Color = Color.Warning },
-                    new() { Name = "جوجه کباب", Color = Color.Info }
-                }
-            },
-            new() { DayName = "یکشنبه", Date = "2 مهر", Foods = new() 
-                { 
-                    new() { Name = "قیمه بادمجان", Color = Color.Success },
-                    new() { Name = "خورش کرفس", Color = Color.Warning }
-                }
-            },
-            new() { DayName = "دوشنبه", Date = "3 مهر", Foods = new() 
-                { 
-                    new() { Name = "باقالی پلو", Color = Color.Success },
-                    new() { Name = "کباب برگ", Color = Color.Error }
-                }
-            },
-            new() { DayName = "سه‌شنبه", Date = "4 مهر", Foods = new() 
-                { 
-                    new() { Name = "فسنجان", Color = Color.Success }
-                }
-            },
-            new() { DayName = "چهارشنبه", Date = "5 مهر", Foods = new() 
-                { 
-                    new() { Name = "ماهی شکم پر", Color = Color.Info },
-                    new() { Name = "سبزی پلو", Color = Color.Success }
-                }
-            },
-            new() { DayName = "پنج‌شنبه", Date = "6 مهر", Foods = new() 
-                { 
-                    new() { Name = "آش رشته", Color = Color.Warning }
-                }
-            },
-            new() { DayName = "جمعه", Date = "7 مهر", IsHoliday = true }
-        };
+            await GetLocalUserFromStorage();
+
+            if (LoginService.LocalUser != null)
+            {
+                Snackbar.Add("شما از قبل وارد سیستم شده اید", Severity.Info);
+                StateHasChanged();
+            }
+
+            _isDataLoaded = true;
+        }
     }
 
-    private List<DayInfo> GetWeek2()
+
+    protected override void OnInitialized()
     {
-        return new List<DayInfo>
+        GetMont();
+        base.OnInitialized();
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        if ( !_isDataLoaded)
         {
-            new() { DayName = "شنبه", Date = "8 مهر", Foods = new() 
-                { 
-                    new() { Name = "لوبیا پلو", Color = Color.Success },
-                    new() { Name = "کوفته تبریزی", Color = Color.Warning }
-                }
-            },
-            new() { DayName = "یکشنبه", Date = "9 مهر", Foods = new() 
-                { 
-                    new() { Name = "کله جوش", Color = Color.Info }
-                }
-            },
-            new() { DayName = "دوشنبه", Date = "10 مهر", Foods = new() 
-                { 
-                    new() { Name = "خورش بامیه", Color = Color.Success }
-                }
-            },
-            new() { DayName = "سه‌شنبه", Date = "11 مهر", Foods = new() 
-                { 
-                    new() { Name = "ته چین مرغ", Color = Color.Warning }
-                }
-            },
-            new() { DayName = "چهارشنبه", Date = "12 مهر", Foods = new() 
-                { 
-                    new() { Name = "میرزاقاسمی", Color = Color.Success },
-                    new() { Name = "ماکارونی", Color = Color.Error }
-                }
-            },
-            new() { DayName = "پنج‌شنبه", Date = "13 مهر", Foods = new() 
-                { 
-                    new() { Name = "پیتزا مخصوص", Color = Color.Info }
-                }
-            },
-            new() { DayName = "جمعه", Date = "14 مهر", IsHoliday = true }
-        };
+
+            await GetLocalUserFromStorage();
+
+            if (LoginService.LocalUser != null)
+            {
+
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add("برای استفاده از سیستم باید وارد شوید", Severity.Info);
+            }
+
+            _isDataLoaded = true;
+        }
+
+        await GetDailyFoods();
+
+    }
+    private async Task GetUser()
+    {
+        var dialog = await DialogService.ShowAsync<LoginDialog>("ورود به برنامه");
+        var result = await dialog.Result;
+        StateHasChanged();
+        localyUser = LoginService.LocalUser;
+        if (LoginService.LocalUser == null) Snackbar.Add("کاربری وجود ندارد ", Severity.Warning);
+        else if (LoginService.LocalUser.First_Name == null) Snackbar.Add("نام کاربر خالیست", Severity.Warning);
+
     }
 
-    private List<DayInfo> GetWeek3()
+
+    public async Task GetLocalUserFromStorage()
     {
-        return new List<DayInfo>
+        try
         {
-            new() { DayName = "شنبه", Date = "15 مهر", Foods = new() { new() { Name = "قورمه سبزی", Color = Color.Success } } },
-            new() { DayName = "یکشنبه", Date = "16 مهر", Foods = new() { new() { Name = "فسنجان", Color = Color.Warning } } },
-            new() { DayName = "دوشنبه", Date = "17 مهر", Foods = new() { new() { Name = "کباب کوبیده", Color = Color.Error } } },
-            new() { DayName = "سه‌شنبه", Date = "18 مهر", Foods = new() { new() { Name = "خورش بامیه", Color = Color.Success } } },
-            new() { DayName = "چهارشنبه", Date = "19 مهر", Foods = new() { new() { Name = "پاستا", Color = Color.Info } } },
-            new() { DayName = "پنج‌شنبه", Date = "20 مهر", Foods = new() { new() { Name = "لازانیا", Color = Color.Warning } } },
-            new() { DayName = "جمعه", Date = "21 مهر", IsHoliday = true }
-        };
+
+            var result = await LStorage.GetAsync<User>("User");
+            if (result.Success && result.Value != null)
+            {
+                localyUser = result.Value;
+
+                LoginService.LocalUser = localyUser;
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);   
+            }
+        }
+        catch (InvalidOperationException)
+        {
+
+
+        }
+        catch (Exception)
+        {
+            localyUser = LoginService.LocalUser;
+
+
+        }
     }
 
-    private List<DayInfo> GetWeek4()
-    {
-        return new List<DayInfo>
-        {
-            new() { DayName = "شنبه", Date = "22 مهر", Foods = new() { new() { Name = "قیمه", Color = Color.Success } } },
-            new() { DayName = "یکشنبه", Date = "23 مهر", Foods = new() { new() { Name = "زرشک پلو", Color = Color.Warning } } },
-            new() { DayName = "دوشنبه", Date = "24 مهر", Foods = new() { new() { Name = "ماهی", Color = Color.Info } } },
-            new() { DayName = "سه‌شنبه", Date = "25 مهر", Foods = new() { new() { Name = "کوفته", Color = Color.Error } } },
-            new() { DayName = "چهارشنبه", Date = "26 مهر", Foods = new() { new() { Name = "باقالی پلو", Color = Color.Success } } },
-            new() { DayName = "پنج‌شنبه", Date = "27 مهر", Foods = new() { new() { Name = "آبگوشت", Color = Color.Warning } } },
-            new() { DayName = "جمعه", Date = "28 مهر", IsHoliday = true }
-        };
-    }
+
 }

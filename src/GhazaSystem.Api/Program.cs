@@ -1,12 +1,10 @@
-
 using GhazaSystem.Api.Infrastructure;
-using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
 using GhazaSystem.Api.Services;
+using GhazaSystem.Common.Data;
+using GhazaSystem.Common.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Configuration;
+
 
 namespace GhazaSystem.Api
 {
@@ -19,7 +17,10 @@ namespace GhazaSystem.Api
             // Add services to the container.
 
             builder.Services.AddDbContext<GhazaDbContext>(options =>
-               options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+            
+            );
 
             builder.Services.AddCors(polisy => polisy.AddPolicy("GhazaCorsPolicy", builder =>
                 {
@@ -42,8 +43,38 @@ namespace GhazaSystem.Api
             .AddScoped<IInfrasructureRepository<Food_Change>, Food_ChangeRepository>()
             .AddScoped<IInfrasructureRepository<Daily_Food>, Daily_FoodRepository>();
             
+            //start test api 
 
+            /*
             Console.WriteLine(Directory.GetCurrentDirectory());
+            var service = new PersianCalendarService();
+            var monthWeeks = service.GetMonthCalendar(9);
+            int weekCounter = 1;
+            foreach (var week in monthWeeks.MontWeek!)
+            {
+                Console.WriteLine($"--- هفته {weekCounter} ---");
+                foreach (var day in week.WeekDay!)
+                {
+                    if (day == null)
+                    {
+                        Console.Write("[   خالی   ] ");
+                    }
+                    else
+                    {
+                        Console.Write($"[{day.DayName} - {day.DayNumber} - {day.PersianDate} - {day.GregorianDate} - ] ");
+                        // دسترسی به میلادی: day.GregorianDate
+                    }
+                }
+                Console.WriteLine("\n");
+                weekCounter++;
+            }
+
+            */
+
+            // end test api
+
+
+
             var app = builder.Build();
 
 

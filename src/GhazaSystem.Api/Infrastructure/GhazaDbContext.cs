@@ -1,4 +1,5 @@
 ﻿using GhazaSystem.Api.Infrastructure.Data;
+using GhazaSystem.Common.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using System.Collections.Generic;

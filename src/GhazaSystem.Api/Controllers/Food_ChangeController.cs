@@ -4,6 +4,7 @@ using GhazaSystem.Api.Services;
 using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using GhazaSystem.Common.Data;
 
 namespace GhazaSystem.Api.Controllers;
 

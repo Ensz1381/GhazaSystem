@@ -1,0 +1,64 @@
+﻿@using GhazaSystem.UI.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject ISnackbar Snackbar
+@inject UserServices userServices
+
+
+
+
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField @bind-Value="UserForm.First_Name"
+                          Placeholder="انتخاب کنید"
+                          Label="نام کاربر"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Restaurant" />
+
+            <MudTextField @bind-Value="UserForm.Last_Name"
+                          Label="نام خانوادگی"
+                          Variant="Variant.Outlined"
+                          Lines="1" />
+
+            <MudNumericField @bind-Value="UserForm.National_Code"
+                             Label="کد ملی پرسنل"
+                             Variant="Variant.Outlined"
+                             Min="0"
+                             Adornment="Adornment.End"
+                             AdornmentText="کد ملی" />
+
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit" Color="Color.Success" Variant="Variant.Filled">افزودن</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+
+    [CascadingParameter] public IMudDialogInstance MudDialog { get; set; } = default!;
+
+    public UserDTOs UserForm = new UserDTOs();
+
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrWhiteSpace(UserForm.First_Name))
+        {
+            return;
+        }
+
+        var result = await userServices.AddAsync(UserForm);
+        Snackbar.Add($"کاربر {UserForm.First_Name} اضافه شد", Severity.Success);
+
+
+        MudDialog.Close(DialogResult.Ok(UserForm));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

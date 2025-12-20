@@ -3,6 +3,7 @@ using GhazaSystem.Api.Infrastructure;
 using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using GhazaSystem.Common.Data;
 
 namespace GhazaSystem.Api.Services
 {
@@ -72,6 +73,21 @@ namespace GhazaSystem.Api.Services
             {
                 return ResponseBuilder.Failure<Food>(message:ex.ToString());
             }
+        }
+
+        public Task<Response<List<Food>>> GetListAsync(ListUserDailyFoodsDTO model)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Response<object>> SetListAsync(List<Food> list)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Response<object>> SetListAsync(ListUserDailyFoodsDTO list)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<Response<Food>> UpdateAsync(Food model)
