@@ -16,8 +16,7 @@ namespace GhazaSystem.Api.Infrastructure;
         public DbSet<Daily_Food> Daily_Foods { get; set; }
         public DbSet<Login> Login { get; set; }
         public DbSet<User> User { get; set; }
-
-
+        public DbSet<Company> Companies { get; set; }
 
     public GhazaDbContext(DbContextOptions<GhazaDbContext> options) : base(options)
         {
@@ -31,11 +30,12 @@ namespace GhazaSystem.Api.Infrastructure;
             builder.ApplyConfiguration(new Food_ChangeConfiguration());
             builder.ApplyConfiguration(new Daily_FoodConfiguration());  
             builder.ApplyConfiguration(new LoginConfiguration());
-            
+            builder.ApplyConfiguration(new CompanyConfiguration());
 
 
 
-         }
+
+    }
 
     }
     public class GhazaDbContextFactory : IDesignTimeDbContextFactory<GhazaDbContext>

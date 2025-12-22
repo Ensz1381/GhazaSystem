@@ -12,7 +12,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasKey(x => x.Id);
         builder.HasMany(x => x.Daily_Foods)
             .WithMany(x=>x.users);
- 
+        builder.HasOne(c => c.C_User);
         builder.HasMany(x => x.Logins);
 
     }

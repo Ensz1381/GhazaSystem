@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/my-foods"
 @using System.Net.WebSockets
 @using GhazaSystem.Common.Services
 @using GhazaSystem.UI.Components.Dialog.User
@@ -9,6 +9,7 @@
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 @inject ProtectedLocalStorage LStorage
+@inject UserServices userServices
 @inject IJSRuntime JS
 @inject PersianCalendarService psc
 @rendermode InteractiveServer
@@ -19,42 +20,42 @@
 
 <MudRTLProvider RightToLeft="true">
     <div style="height: 100vh; display: flex; flex-direction: column; background-color: #f5f5f5;">
-        
+
         <!-- هدر ثابت -->
         <MudPaper Elevation="1" Square="true" Class="pa-4" Style="flex-shrink: 0;">
             <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
                 <MudStack Spacing="0">
                     <MudText Typo="Typo.h5" Color="Color.Primary">
                         <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
-                        برنامه غذایی ماه جاری
+                        غذای این ماه من
                     </MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-10">
                         @psc.GetPersianMontName(mont.MonthNumber) ماه @mont.YearNumber
                     </MudText>
                 </MudStack>
                 <MudStack Style="display: flex;">
-                <MudButton Variant="Variant.Filled" 
-                          Color="Color.Primary" 
-                          StartIcon="@Icons.Material.Filled.Refresh"
-                          Size="Size.Small">
-                    بروزرسانی
-                </MudButton>
-                @if (LoginService.LocalUser == null)
-                {
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Login"
-                               OnClick="GetUser"
+                               StartIcon="@Icons.Material.Filled.Refresh"
                                Size="Size.Small">
-                        ورود
+                        بروزرسانی
                     </MudButton>
-                }
+                    @if (LoginService.LocalUser == null)
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Login"
+                                   OnClick="GetUser"
+                                   Size="Size.Small">
+                            ورود
+                        </MudButton>
+                    }
                 </MudStack>
             </MudStack>
         </MudPaper>
-        
+
         <!-- بخش اسکرول -->
-        @if(LoginService.LocalUser != null)
+        @if (LoginService.LocalUser != null)
         {
             <div style="flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px;">
                 <MudStack Spacing="3">
@@ -113,8 +114,8 @@
                                                                 if (food.Date == day.GregorianDate)
                                                                 {
                                                                     <MudChip T="Food" Style="width: 95%;
-                                                                                                                                 justify-content: space-between;
-                                                                                                                                ">
+                                                                                                                                                             justify-content: space-between;
+                                                                                                                                                            ">
                                                                         <ChildContent>@food.food!.Name</ChildContent>
                                                                         <AvatarContent>
                                                                             <MudAvatar>
@@ -156,7 +157,12 @@
 
     public async Task GetDailyFoods()
     {
-        var response = await dailyFoodServices.GetMontAsync();
+        var response = await dailyFoodServices.GetListDailyFoodsUser(new ListUserDailyFoodsDTO()
+        {
+            UserId = userServices.LocalUser!.Id,
+            Mount = mont.MonthNumber
+
+        });
         list_daily_Foods = response.Data!;
         StateHasChanged();
     }
@@ -195,7 +201,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        if ( !_isDataLoaded)
+        if (!_isDataLoaded)
         {
 
             await GetLocalUserFromStorage();
@@ -240,7 +246,7 @@
             }
             else
             {
-                Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);   
+                Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);
             }
         }
         catch (Exception)

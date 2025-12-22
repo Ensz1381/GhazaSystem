@@ -1,9 +1,13 @@
 ﻿@page "/select-food"
+@rendermode InteractiveServer
 @inject DailyFoodServices dailyFoodServices
 @using GhazaSystem.Common.Services
 @using GhazaSystem.UI.Components.Dialog
 @using GhazaSystem.UI.Components.Dialog.Food
 @using GhazaSystem.UI.Services
+
+@inject ProtectedLocalStorage LStorage
+@inject NavigationManager NManager
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject UserServices userServices
@@ -242,7 +246,19 @@
     public Response<List<Daily_Food>> resultFoods = new Response<List<Daily_Food>>();
     public List<Daily_Food> List_Daily_FoodDTOs_User = new List<Daily_Food>();
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
 
+        if (firstRender )
+        {
+            await GetLocalUserFromStorage();
+
+            if (userServices.LocalUser == null)
+            {
+                NManager.NavigateTo("/");
+            }
+        }
+    }
 
 
     protected override async Task OnInitializedAsync()
@@ -250,6 +266,28 @@
         await GetDailyFoods();
         resultFoods = await dailyFoodServices.GetMontAsync();
         availableFoods = resultFoods.Data!;
+        await GetLocalUserFromStorage();
+    }
+    public async Task GetLocalUserFromStorage()
+    {
+        try
+        {
+
+            var result = await LStorage.GetAsync<User>("User");
+            if (result.Success && result.Value != null)
+            {
+                userServices.LocalUser = result.Value;
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);
+                NManager.NavigateTo("/", forceLoad: true);
+            }
+        }
+        catch (Exception)
+        { NManager.NavigateTo("/", forceLoad: true); }
+
     }
 
     public void GetMont()
@@ -257,31 +295,38 @@
         mont = psc.AutoPersianCalendar();
         selectedMonth = mont.MonthNumber;
     }
-
-
     protected override void OnInitialized()
     {
         GetMont();
         base.OnInitialized();
 
     }
-
     public async Task GetDailyFoods()
     {
-        var response = await dailyFoodServices.GetListDailyFoodsUser(new ListUserDailyFoodsDTO()
-        { 
-            UserId = userServices.LocalUser!.Id,
-            Mount = mont.MonthNumber
-
-        });
-        if (response.Data != null)
+        try
         {
-            List_Daily_FoodDTOs_User = response.Data;
+            var response = await dailyFoodServices.GetListDailyFoodsUser(new ListUserDailyFoodsDTO()
+            {
+                UserId = userServices.LocalUser!.Id,
+                Mount = mont.MonthNumber
+
+            });
+            if (response.Data != null)
+            {
+                List_Daily_FoodDTOs_User = response.Data;
+            }
+        }
+        catch
+        {
+            NManager.NavigateTo("/");
+        }
+        finally
+        {
+            StateHasChanged();
         }
 
-        StateHasChanged();
+        
     }
-
     private async Task SaveChanges()
     {
         //Snackbar.Add("در حال ذخیره تغییرات...", Severity.Info);
@@ -295,14 +340,11 @@
         if (resuslt.IsSuccess) Snackbar.Add("تغییرات با موفقیت ذخیره شد", Severity.Success);
         else Snackbar.Add(resuslt.Message ?? "مشکلی در ثبت به وجود آمد", Severity.Warning);
     }
-
     private void CancelChanges()
     {
 
         Snackbar.Add("تغییرات لغو شد", Severity.Warning);
     }
-
-
     private void OnSelectionChanged(IEnumerable<Daily_Food> args, DateOnly date)
     {
         try

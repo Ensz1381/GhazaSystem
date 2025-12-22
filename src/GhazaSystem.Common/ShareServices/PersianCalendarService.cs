@@ -60,6 +60,12 @@ public class PersianCalendarService
             if (currentWeek.DayCount == 0) currentWeek.FirstDay = calendarDay.DayNumber;
             currentWeek.WeekDay!.Add(calendarDay);
             currentWeek.DayCount++;
+            if (calendarDay.DayName == "جمعه")
+            {
+                currentWeek.LastDay = calendarDay.DayNumber;
+                result.MontWeek?.Add(currentWeek);
+                currentWeek = new CalendarWeek();
+            }
             // اگر هفته پر شد (7 روز)، آن را به لیست کلی اضافه کن و هفته جدید بساز
             if (currentWeek.DayCount == 7)
             {

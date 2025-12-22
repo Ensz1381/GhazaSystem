@@ -8,6 +8,9 @@
 @inject FoodServices foodServices
 @inject DailyFoodServices dailyFoodServices
 @inject PersianCalendarService psc
+@inject ProtectedLocalStorage LStorage
+@inject NavigationManager NManager
+@inject UserServices userServices
 
 
 <PageTitle>مدیریت غذای ماهانه</PageTitle>
@@ -272,6 +275,7 @@
         await GetDailyFoods();
         resultFoods = await foodServices.GetAllAsync();
         availableFoods = resultFoods.Data!;
+        await GetLocalUserFromStorage();
     }
 
     public void GetMont()
@@ -280,7 +284,7 @@
         selectedMonth = mont.MonthNumber;
     }
 
-
+    
     protected override void OnInitialized()
     {
         GetMont();
@@ -312,7 +316,27 @@
 
 
 
+    public async Task GetLocalUserFromStorage()
+    {
+        try
+        {
 
+            var result = await LStorage.GetAsync<User>("User");
+            if (result.Success && result.Value != null)
+            {
+                userServices.LocalUser = result.Value;
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);
+                NManager.NavigateTo("/", forceLoad: true);
+            }
+        }
+        catch (Exception)
+        { NManager.NavigateTo("/", forceLoad: true); }
+
+    }
     private async Task LoadData()
     {
         Snackbar.Add("در حال بارگذاری اطلاعات...", Severity.Info);
