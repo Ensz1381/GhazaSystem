@@ -1,0 +1,69 @@
+﻿@using GhazaSystem.UI.Services
+@rendermode InteractiveServer
+@inject CompanyServices companyServices
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudSelect T="Company"
+                       Placeholder="انتخاب کنید"
+                      @bind-Value="selectedCompany" 
+                      Label="انتخاب شرکت برای ویرایش" 
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.CompareArrows">
+                @foreach (var com in companies)
+                {
+                    <MudSelectItem Value="@com">@com.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(selectedCompany.Name))
+            {
+                <MudDivider />
+
+                <MudTextField @bind-Value="company.Name" 
+                             Label="نام جدید شرکت" 
+                             Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="company.C_Code" 
+                             Label="کد شناسایی جدید" 
+                             Variant="Variant.Outlined"
+                             Lines="1" />
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit" 
+                  Color="Color.Warning" 
+                  Variant="Variant.Filled"
+                  Disabled="@string.IsNullOrEmpty(selectedCompany.Name)">
+            ویرایش
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<Company> companies { get; set; } = new();
+    private Company selectedCompany = new Company();
+    private Company company = new Company();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrEmpty(selectedCompany.Name)) return;
+        if (string.IsNullOrEmpty(company.Name)) company.Name = selectedCompany.Name;
+        if (string.IsNullOrEmpty(company.C_Code.ToString())) company.C_Code = selectedCompany.C_Code;
+
+        await companyServices.UpdateAsync(company);
+
+        // اینجا کد ارسال به API
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+
+
+}

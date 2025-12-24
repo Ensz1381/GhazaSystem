@@ -22,6 +22,7 @@ namespace GhazaSystem.UI
             builder.Services.AddMudServices();
 
             builder.Services.AddScoped<UserServices>();
+            builder.Services.AddScoped<CompanyServices>();
             builder.Services.AddScoped<FoodServices>();
             builder.Services.AddScoped<LoginServices>();
             builder.Services.AddScoped<FoodChangeServices>();

@@ -1,12 +1,14 @@
 ﻿@page "/manager"
 @using GhazaSystem.UI.Components.Dialog
 @using GhazaSystem.Common.Services
+@using GhazaSystem.UI.Components.Dialog.Company
 @using GhazaSystem.UI.Components.Dialog.Food
 @using GhazaSystem.UI.Components.Dialog.User
 @using GhazaSystem.UI.Services
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject FoodServices foodServices
+@inject CompanyServices companyServices
 @inject UserServices userServices
 @inject DailyFoodServices dailyFoodServices
 @inject PersianCalendarService psc
@@ -125,6 +127,48 @@
 
             </MudStack>
 
+            <MudDivider Class="m-3" />
+
+            <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+
+                <MudStack Row="true" Spacing="2">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
+                        مدیریت اطلاعات شرکت ها در پنل غذای سازمانی
+                    </MudText>
+                </MudStack>
+
+                <!-- دکمه‌های عملیات -->
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Success"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Size="Size.Small"
+                               OnClick="OpenAddCompanyDialog">
+                        افزودن شرکت
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Warning"
+                               StartIcon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               OnClick="OpenEditCompanyDialog">
+                        ویرایش شرکت
+                    </MudButton>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               OnClick="OpenDeleteCompanyDialog">
+                        حذف شرکت
+                    </MudButton>
+                </MudStack>
+
+
+
+            </MudStack>
+
         </MudPaper>
 
 
@@ -141,6 +185,7 @@
 
     public Response<List<Food>> resultFoods = new Response<List<Food>>();
     public Response<List<User>> resultUsers = new Response<List<User>>();
+    public Response<List<Company>> resultCompanies = new Response<List<Company>>();
 
 
 
@@ -148,6 +193,8 @@
     {
         await GetLocalUserFromStorage();
     }
+
+
     private async Task OpenAddFoodDialog()
     {
 
@@ -161,7 +208,6 @@
             Snackbar.Add("غذا با موفقیت اضافه شد", Severity.Success);
         }
     }
-
     private async Task OpenEditFoodDialog()
     {
         resultFoods = await foodServices.GetAllAsync();
@@ -178,7 +224,6 @@
             Snackbar.Add("غذا با موفقیت ویرایش شد", Severity.Success);
         }
     }
-
     private async Task OpenDeleteFoodDialog()
     {
         resultFoods = await foodServices.GetAllAsync();
@@ -195,6 +240,9 @@
             Snackbar.Add("غذا با موفقیت حذف شد", Severity.Success);
         }
     }
+
+
+
     private async Task OpenAddUserDialog(MouseEventArgs args)
     {
         var dialog = await DialogService.ShowAsync<AddUserDialog>("افزودن کاربر جدید");
@@ -233,6 +281,49 @@
             Snackbar.Add("کاربر با موفقیت حذف شد", Severity.Success);
         }
     }
+
+
+    private async Task OpenAddCompanyDialog(MouseEventArgs args)
+    {
+        var dialog = await DialogService.ShowAsync<AddCompanyDialog>("افزودن شرکت جدید");
+        var result = await dialog.Result;
+
+    }
+    private async Task OpenEditCompanyDialog(MouseEventArgs args)
+    {
+        resultCompanies = await companyServices.GetAllAsync();
+        var parameters = new DialogParameters<EditCompanyDialog>
+        {
+            { x => x.companies, resultCompanies.Data }
+        };
+
+        var dialog = await DialogService.ShowAsync<EditCompanyDialog>("ویرایش شرکت", parameters);
+        var result = await dialog.Result;
+        if (result == null) Snackbar.Add("خطایی در ویرایش شرکت به وجود آمد", Severity.Warning);
+        if (result!.Data != null)
+        {
+            Snackbar.Add("شرکت با موفقیت ویرایش شد", Severity.Success);
+        }
+    }
+    private async Task OpenDeleteCompanyDialog(MouseEventArgs args)
+    {
+        resultCompanies = await companyServices.GetAllAsync();
+        var parameters = new DialogParameters<DeleteCompanyDialog>
+        {
+            { x => x.companies,  resultCompanies.Data }
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteCompanyDialog>("حذف شرکت", parameters);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled)
+        {
+            Snackbar.Add("شرکت با موفقیت حذف شد", Severity.Success);
+        }
+    }
+
+
+
     public async Task GetLocalUserFromStorage()
     {
         try

@@ -1,0 +1,71 @@
+﻿@using GhazaSystem.UI.Services
+@rendermode InteractiveServer
+@inject CompanyServices companyServices
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudAlert Severity="Severity.Warning">
+                <MudText>⚠️ توجه: این عملیات قابل بازگشت نیست!</MudText>
+            </MudAlert>
+
+            <MudSelect T="Company"
+                       Placeholder="انتخاب کنید"
+                       @bind-Value="selectedcompany"
+                       Label="انتخاب شرکت برای حذف"
+                       Variant="Variant.Outlined"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Restaurant">
+                @foreach (var com in companies)
+                {
+                    <MudSelectItem T="Company" Value="@com"
+                                   Style=" display: flex;
+                                           flex-direction: row-reverse;
+                                           padding-left:0;padding-right:0;
+                                          ">
+                        <MudChip T="Food" Style="width: 95%;
+                                                 justify-content: space-between;
+                                                ">
+                            <ChildContent>@com.Name</ChildContent>
+                        </MudChip>
+                    </MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (!string.IsNullOrEmpty(selectedcompany.Name))
+            { 
+                <MudPaper Class="pa-4" Outlined="true">
+                    <MudText Typo="Typo.body1" Color="Color.Error">
+                        آیا از حذف شرکت <strong>@selectedcompany.Name</strong> مطمئن هستید؟
+                    </MudText>
+                </MudPaper>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">انصراف</MudButton>
+        <MudButton OnClick="Submit"
+                   Color="Color.Error"
+                   Variant="Variant.Filled"
+                   Disabled="@string.IsNullOrEmpty(selectedcompany.Name)">
+            حذف
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public List<Company> companies { get; set; } = new();
+
+    private Company selectedcompany = new Company();
+
+    private async Task Submit()
+    {
+        if (string.IsNullOrEmpty(selectedcompany.Name)) return;
+        await companyServices.DeleteAsync(selectedcompany.Id);
+        // اینجا کد حذف از API
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

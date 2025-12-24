@@ -1,5 +1,6 @@
 using GhazaSystem.Api.Infrastructure;
 using GhazaSystem.Api.Interfaces;
+using GhazaSystem.Api.Repositories;
 using GhazaSystem.Api.Services;
 using GhazaSystem.Common.Data;
 using GhazaSystem.Common.Services;
@@ -38,6 +39,7 @@ namespace GhazaSystem.Api
 
             builder.Services
             .AddScoped<IInfrasructureRepository<User>, UserRepository>()
+            .AddScoped<IInfrasructureRepository<Company>, CompanyRepository>()
             .AddScoped<IInfrasructureRepository<Login>, LoginRepository>()
             .AddScoped<IInfrasructureRepository<Food>, FoodRepository>()
             .AddScoped<IInfrasructureRepository<Food_Change>, Food_ChangeRepository>()
