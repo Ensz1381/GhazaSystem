@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject ISnackbar Snackbar
 @inject UserServices userServices
+@inject CompanyServices companyservices
 
 <MudDialog>
     <DialogContent>
@@ -37,6 +38,19 @@
                                  Variant="Variant.Outlined"
                                  Adornment="Adornment.End"
                                  AdornmentText="کد جدید" />
+                <MudSelect T="Company"
+                           @bind-Value="newUser.C_User"
+                           Placeholder="انتخاب کنید"
+                           Label="انتخاب شرکت کاربر"
+                           Variant="Variant.Outlined"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.AddHome">
+
+                    @foreach (var item in companies)
+                    {
+                        <MudSelectItem Value="@item">@item.Name</MudSelectItem>
+                    }
+                </MudSelect>
 
             }
         </MudStack>
@@ -55,6 +69,8 @@
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public List<User> Users { get; set; } = new();
+    public List<Company> companies = new List<Company>();
+
 
     protected async override Task OnInitializedAsync()
     {
@@ -65,7 +81,11 @@
             else Users = response.Data; ;
 
         }
+        var result = await companyservices.GetAllAsync();
+        if (result.Data != null)
+            companies = result.Data;
     }
+
 
 
     private User selectedUser = new User();

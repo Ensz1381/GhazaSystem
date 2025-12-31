@@ -1,0 +1,114 @@
+﻿@page "/report"
+@using GhazaSystem.UI.Components.Dialog
+@using GhazaSystem.Common.Services
+@using GhazaSystem.UI.Components.Dialog.Company
+@using GhazaSystem.UI.Components.Dialog.Food
+@using GhazaSystem.UI.Components.Dialog.User
+@using GhazaSystem.UI.Services
+@inject IJSRuntime jS
+@inject ISnackbar Snackbar
+@using System.Threading
+@using System.Globalization
+@using System.Reflection
+@using GhazaSystem.UI.Shared
+@inject IDialogService DialogService
+@inject ReportServices RP
+@inject FoodServices foodServices
+@inject CompanyServices companyServices
+@inject UserServices userServices
+@inject DailyFoodServices dailyFoodServices
+@inject PersianCalendarService psc
+@inject ProtectedLocalStorage LStorage
+@inject NavigationManager NManager
+
+
+<PageTitle>پنل گزارشات</PageTitle>
+
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">مدیریت گزارشات</MudText>
+
+    <!-- دکمه‌های درخواست گزارش -->
+    <MudPaper Class="pa-4 mb-4" Elevation="3">
+        <MudText Typo="Typo.h6">درخواست گزارش جدید</MudText>
+        <MudStack Row="true" Justify="Justify.FlexStart" AlignItems="AlignItems.Start" StretchItems="StretchItems.None" >
+            <MudDatePicker  Label="انتخاب روز گزارش" @bind-Date="_date" Culture="@psc.GetPersianCulture()" TitleDateFormat="dddd, dd MMMM" />
+            <MudDateRangePicker Label="انتخاب بازه گزارش " Editable="true" Culture="@psc.GetPersianCulture()" @bind-DateRange="_dateRange" />
+            <MudSelect T="int"
+                       @bind-Value="selectMontin"
+                       Label="انتخاب ماه گزارش"
+                       Variant="Variant.Outlined"
+                       Dense="true"
+                       Style="min-width: 150px;">
+                <MudSelectItem Value="1">فروردین</MudSelectItem>
+                <MudSelectItem Value="2">اردیبهشت</MudSelectItem>
+                <MudSelectItem Value="3">خرداد</MudSelectItem>
+                <MudSelectItem Value="4">تیر</MudSelectItem>
+                <MudSelectItem Value="5">مرداد</MudSelectItem>
+                <MudSelectItem Value="6">شهریور</MudSelectItem>
+                <MudSelectItem Value="7">مهر</MudSelectItem>
+                <MudSelectItem Value="8">آبان</MudSelectItem>
+                <MudSelectItem Value="9">آذر</MudSelectItem>
+                <MudSelectItem Value="10">دی</MudSelectItem>
+                <MudSelectItem Value="11">بهمن</MudSelectItem>
+                <MudSelectItem Value="12">اسفند</MudSelectItem>
+            </MudSelect>
+        </MudStack>
+        <MudStack Row="true" Spacing="2" Class="mt-2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Restaurant"
+                       OnClick="@(() => RequestReportDailyFood())">
+                گزارش غذای روز
+            </MudButton>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.AttachMoney"
+                       OnClick="@(() => RequestReportMontFood())">
+                گزارش ماهانه
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    private DateRange _dateRange = new DateRange(DateTime.Now.Date, DateTime.Now.AddDays(5).Date);
+    private DateTime? _date = DateTime.Now; // 1399-11-26 in Persian calendar
+    private int selectMontin = 1;
+
+    private async Task RequestReportMontFood()
+    {
+        try
+        {
+            string url = ReportUrlApi.getmont(selectMontin);
+            await jS.InvokeVoidAsync("triggerFileDownload", $"گزارش غذا امروز.xlsx", url);
+            Snackbar.Add("دانلود به صورت خودکار شروع شد", severity: Severity.Info);
+        }
+        catch
+        {
+            Snackbar.Add("مشکلی در دانلود گزارش وجود دارد", severity: Severity.Warning);
+        }
+    }
+
+
+
+    private async Task RequestReportDailyFood()
+    {
+        try
+        {
+            var url = ReportUrlApi.getinday(_date ?? DateTime.Now);
+            await jS.InvokeVoidAsync("triggerFileDownload", $"گزارش غذا امروز.xlsx", url);
+            Snackbar.Add("دانلود به صورت خودکار شروع شد", severity: Severity.Info);
+        }
+        catch
+        {
+            Snackbar.Add("مشکلی در دانلود گزارش وجود دارد", severity: Severity.Warning);
+        }
+    }
+}
+
+
+
+
+
+

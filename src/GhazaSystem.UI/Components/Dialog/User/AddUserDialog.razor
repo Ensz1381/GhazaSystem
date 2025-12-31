@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @inject ISnackbar Snackbar
 @inject UserServices userServices
+@inject CompanyServices companyservices
 
 
 
@@ -30,6 +31,21 @@
                              Adornment="Adornment.End"
                              AdornmentText="کد ملی" />
 
+
+            <MudSelect T="Company"
+                       @bind-Value="UserForm.C_User"
+                       Placeholder="انتخاب کنید"
+                       Label="انتخاب شرکت کاربر"
+                       Variant="Variant.Outlined"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.AddHome">
+
+                       @foreach(var item in companies)
+                {
+                    <MudSelectItem Value="@item">@item.Name</MudSelectItem>
+                }
+            </MudSelect>
+
         </MudStack>
     </DialogContent>
     <DialogActions>
@@ -44,6 +60,14 @@
     [CascadingParameter] public IMudDialogInstance MudDialog { get; set; } = default!;
 
     public UserDTOs UserForm = new UserDTOs();
+    public List<Company> companies = new List<Company>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await companyservices.GetAllAsync();
+        if(result.Data != null)
+        companies = result.Data;
+    }
 
 
     private async Task Submit()

@@ -1,4 +1,6 @@
-﻿using GhazaSystem.Api.Interfaces;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using GhazaSystem.Api.Interfaces;
 using GhazaSystem.Api.Services;
 using GhazaSystem.Common.Data;
 using GhazaSystem.Common.DTOs;
@@ -12,7 +14,7 @@ namespace GhazaSystem.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 public class Daily_FoodController(
-    IInfrasructureRepository<Daily_Food> Daily_FoodRepository
+    IInfrasructureRepository<Daily_Food> Daily_FoodRepository 
     ) : ControllerBase
 {
     [HttpGet("all")]
@@ -81,11 +83,6 @@ public class Daily_FoodController(
         return ResponseBuilder.Success<List<Daily_Food>>(ListModel);
         
     }
-
-
-
-
-
 
     [HttpGet("get/{id}")]
     public async Task<Response<Daily_Food>> GetById(Guid id)

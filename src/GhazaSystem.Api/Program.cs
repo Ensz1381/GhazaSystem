@@ -38,12 +38,14 @@ namespace GhazaSystem.Api
             Console.WriteLine(Directory.GetCurrentDirectory());
 
             builder.Services
+                .AddTransient<ReportCreator>()
             .AddScoped<IInfrasructureRepository<User>, UserRepository>()
             .AddScoped<IInfrasructureRepository<Company>, CompanyRepository>()
             .AddScoped<IInfrasructureRepository<Login>, LoginRepository>()
             .AddScoped<IInfrasructureRepository<Food>, FoodRepository>()
             .AddScoped<IInfrasructureRepository<Food_Change>, Food_ChangeRepository>()
             .AddScoped<IInfrasructureRepository<Daily_Food>, Daily_FoodRepository>();
+            
             
             //start test api 
 

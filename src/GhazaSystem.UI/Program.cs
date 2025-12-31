@@ -28,10 +28,15 @@ namespace GhazaSystem.UI
             builder.Services.AddScoped<FoodChangeServices>();
             builder.Services.AddScoped<DailyFoodServices>();
             builder.Services.AddSingleton<PersianCalendarService>();
+            builder.Services.AddScoped<ReportServices>();
 
             builder.Services.AddHttpClient("api", client =>
             {
                 client.BaseAddress = new Uri("http://api:8080/");
+            });
+            builder.Services.AddHttpClient("client", client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:8000/");
             });
 
 

@@ -10,10 +10,11 @@ namespace GhazaSystem.Api.Services
 {
     public class Daily_FoodRepository(GhazaDbContext context) : IInfrasructureRepository<Daily_Food>
     {
+        
         public async Task<Response<Daily_Food>> AddAsync(Daily_Food model)
         {
             try
-            {
+            {   
                 var result = await context.Daily_Foods.AddAsync(model);
                 
                 return ResponseBuilder.Success<Daily_Food>(model);

@@ -1,5 +1,7 @@
 ﻿using GhazaSystem.Common.DTOs;
 using System.Globalization;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace GhazaSystem.Common.Services;
 
@@ -11,7 +13,7 @@ public class PersianCalendarService
 
         // دریافت تاریخ میلادی امروز
         DateTime today = DateTime.Today;
-
+        
         // استخراج عدد ماه شمسی فعلی (مثلاً 9 برای آذر)
         int currentPersianMonth = pc.GetMonth(today);
         return GetMonthCalendar(currentPersianMonth);
@@ -75,6 +77,7 @@ public class PersianCalendarService
             }
         }
 
+
         // اگر آخرین هفته کامل نشده بود، روزهای باقی‌مانده را با null پر کن و اضافه کن
         if (currentWeek.DayCount > 0)
         {
@@ -88,6 +91,22 @@ public class PersianCalendarService
         }
         result.YearNumber = currentYear;
         return result;
+    }
+
+    public CalendarDay GetCalendarDay(DateTime date)
+    {
+        var pc = new PersianCalendar();
+        DateTime gregorianDate = pc.ToDateTime(pc.GetYear(date), pc.GetMonth(date), pc.GetDayOfMonth(date), 0, 0, 0, 0);
+        DateOnly dateOnly = DateOnly.FromDateTime(date); 
+        var calendarDay = new CalendarDay
+        {
+            DayNumber = pc.GetDayOfMonth(date),
+            PersianDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):00}/{pc.GetDayOfMonth(date):00}",
+            GregorianDate = dateOnly,
+            DayName = GetPersianDayName(gregorianDate.DayOfWeek)
+        };
+
+        return calendarDay;
     }
 
     // متد کمکی برای تبدیل نام روزها به فارسی
@@ -124,6 +143,38 @@ public class PersianCalendarService
             12 => "اسفند",
             _ => ""
         };
+    }
+    public CultureInfo GetPersianCulture()
+    {
+        var culture = new CultureInfo("fa-IR");
+        DateTimeFormatInfo formatInfo = culture.DateTimeFormat;
+        formatInfo.AbbreviatedDayNames = new[] { "ی", "د", "س", "چ", "پ", "ج", "ش" };
+        formatInfo.DayNames = new[] { "یکشنبه", "دوشنبه", "سه شنبه", "چهار شنبه", "پنجشنبه", "جمعه", "شنبه" };
+        var monthNames = new[]
+        {
+            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن",
+            "اسفند",
+            "",
+        };
+        formatInfo.AbbreviatedMonthNames =
+            formatInfo.MonthNames =
+                formatInfo.MonthGenitiveNames = formatInfo.AbbreviatedMonthGenitiveNames = monthNames;
+        formatInfo.AMDesignator = "ق.ظ";
+        formatInfo.PMDesignator = "ب.ظ";
+        formatInfo.ShortDatePattern = "yyyy/MM/dd";
+        formatInfo.LongDatePattern = "dddd, dd MMMM,yyyy";
+        formatInfo.FirstDayOfWeek = DayOfWeek.Saturday;
+        Calendar cal = new PersianCalendar();
+        FieldInfo fieldInfo = culture.GetType().GetField("calendar", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        if (fieldInfo != null)
+            fieldInfo.SetValue(culture, cal);
+        FieldInfo info = formatInfo.GetType().GetField("calendar", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        if (info != null)
+            info.SetValue(formatInfo, cal);
+        culture.NumberFormat.NumberDecimalSeparator = "/";
+        culture.NumberFormat.DigitSubstitution = DigitShapes.NativeNational;
+        culture.NumberFormat.NumberNegativePattern = 0;
+        return culture;
     }
 
 }
