@@ -78,7 +78,7 @@ public class ReportCreator(GhazaDbContext context)
             foreach (var daily in resultdaily)
             {
                 
-                    if (daily != null)
+                    if (daily != null )
                     {
                     if(lastdaily==daily.Date) continue;
 

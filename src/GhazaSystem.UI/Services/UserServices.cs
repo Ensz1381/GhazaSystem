@@ -67,7 +67,13 @@ namespace GhazaSystem.UI.Services
             }
             return ResponseBuilder.Failure<User>();
         }
-
+        
+        public async Task<Response<object>> SetAccess(UserAccess UA)
+        {
+            var result = await http.PostAsJsonAsync(UserUrlApi.SetAccessUser, UA);
+            if (result.IsSuccessStatusCode) return ResponseBuilder.Success();
+            return ResponseBuilder.Failure();
+        }
 
 
     }

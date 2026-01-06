@@ -44,7 +44,8 @@
                     <!-- انتخاب ماه و سال -->
                     <MudStack Row="true" Spacing="2">
                         <MudSelect T="int" 
-                                  @bind-Value="mont.MonthNumber" 
+                                  @bind-Value="selectedMonth"
+                                  SelectedValuesChanged="@(() => ChangeMont())"
                                   Label="ماه" 
                                   Variant="Variant.Outlined" 
                                   Dense="true"
@@ -62,17 +63,6 @@
                             <MudSelectItem Value="10">دی</MudSelectItem>
                             <MudSelectItem Value="11">بهمن</MudSelectItem>
                             <MudSelectItem Value="12">اسفند</MudSelectItem>
-                        </MudSelect>
-
-                        <MudSelect T="int" 
-                                  @bind-Value="selectedYear" 
-                                  Label="سال" 
-                                  Variant="Variant.Outlined" 
-                                  Dense="true"
-                                  Style="min-width: 120px;">
-                            <MudSelectItem Value="1402">1402</MudSelectItem>
-                            <MudSelectItem Value="1403">1403</MudSelectItem>
-                            <MudSelectItem Value="1404">1404</MudSelectItem>
                         </MudSelect>
                     </MudStack>
 
@@ -267,9 +257,6 @@
     public Response<List<Food>> resultFoods = new Response<List<Food>>();
     public List<Daily_FoodDTOs> List_Daily_FoodDTOs = new List<Daily_FoodDTOs>();
 
-
-
-
     protected override async Task OnInitializedAsync()
     {
         await GetDailyFoods();
@@ -284,6 +271,20 @@
         selectedMonth = mont.MonthNumber;
     }
 
+    public async Task ChangeMont()
+    {
+        mont = new CalendarMont();
+        availableFoods = new List<Food>();
+        resultFoods = new Response<List<Food>>();
+        List_Daily_FoodDTOs = new List<Daily_FoodDTOs>();
+        mont.MonthNumber = selectedMonth;
+        mont = psc.GetMonthCalendar(selectedMonth);
+        await GetDailyFoods();
+        StateHasChanged();
+        await GetFoodAsync();
+        StateHasChanged();
+    }
+
     
     protected override void OnInitialized()
     {
@@ -294,7 +295,7 @@
 
     public async Task GetDailyFoods()
     {
-        var response = await dailyFoodServices.GetMontAsync();
+        var response = await dailyFoodServices.GetMontAsync(mont.MonthNumber);
         if (response.Data != null)
         {
             var list_daily_foods = response.Data!;
@@ -408,7 +409,7 @@
     }
 
 
-    private void OnSelectionChanged(IEnumerable<Food> args , DateOnly date)
+    private void OnSelectionChanged(IEnumerable<Food> args, DateOnly date)
     {
         try
         {
@@ -420,7 +421,7 @@
         }
         foreach (var item in args)
         {
-            var DF = new Daily_FoodDTOs() { food = item, Date = date,Mount = mont.MonthNumber };
+            var DF = new Daily_FoodDTOs() { food = item, Date = date, Mount = mont.MonthNumber };
             List_Daily_FoodDTOs.Add(DF);
         }
         StateHasChanged();

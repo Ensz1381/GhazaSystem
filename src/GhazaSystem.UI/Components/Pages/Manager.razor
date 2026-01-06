@@ -169,6 +169,110 @@
 
             </MudStack>
 
+            <MudDivider Class="m-3" />
+
+             <MudStack Row="true" Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+
+                <MudStack Row="true" Spacing="2">
+                    <MudText Typo="Typo.h5" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
+                        مدیریت دسترسی کاربران و مدیران
+                    </MudText>
+                </MudStack>
+
+                
+                <MudStack Spacing="3" Style="width : 20%">
+                    <MudSelect T="User"
+                               @bind-Value="selectedUser"
+                               Placeholder="انتخاب کنید"
+                               Label="انتخاب کاربر برای ویرایش"
+                               FullWidth 
+                               Variant="Variant.Outlined"
+                               Adornment="Adornment.Start"
+                               AdornmentIcon="@Icons.Material.Filled.Restaurant">
+                        @foreach (var user in Users)
+                        {
+                            <MudSelectItem Value="@user">@user.First_Name</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                </MudStack>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Info"
+                           StartIcon="@Icons.Material.Filled.Accessibility"
+                           Size="Size.Small"
+                           OnClick="SetAccessUser">
+                    ثبت سطح دسترسی کاربر
+                </MudButton>
+
+                
+            </MudStack>
+            <div id="another_unique_identifier" class="ma-0" style="height:50%;overflow: auto;">
+                <MudPaper Width="100%" Elevation="0" Class="d-flex flex-column justify-space-between py-6">
+                
+                <MudList  T="int" @bind-SelectedValues="testlist" SelectionMode="SelectionMode.MultiSelection" ReadOnly="false" CheckBoxColor="Color.Tertiary">
+                    <MudListSubheader>
+                        انتخاب سطح دسترسی
+                    </MudListSubheader>
+
+                    <MudListItem Text="کاربر عادی" Value= "45" />
+                    <MudListItem Text="کاربر مدیریت" Value="46" />
+                    <MudListItem Text="دسترسی های کاربران به صفحات">
+                        <NestedList>
+                                <MudListItem Text="صفحه غذای این ماه">
+                                    <NestedList>
+                                        <MudListItem Text="نمایش تمام غذا ها" Value="1" />
+                                    </NestedList>
+                                </MudListItem>
+                                <MudListItem Text="صفحه مدیریت غذا">
+                                    <NestedList>
+                                        <MudListItem Text="قابلیت تغییر ماه" Value="2" />
+                                        <MudListItem Text="افزودن غذا" Value="3" />
+                                        <MudListItem Text="ویرایش غذا" Value="4" />
+                                        <MudListItem Text="حذف غذا" Value="5" />
+                                        <MudListItem Text="تغییر غذای روز" Value="6" />
+                                        <MudListItem Text="ذخیره غذا های روز" Value="7" />
+                                    </NestedList>
+                                </MudListItem>
+                                <MudListItem Text="صفحه انتخاب غذا">
+                                    <NestedList>
+                                        <MudListItem Text="قابلیت تغییر ماه" Value="8" />
+                                        <MudListItem Text="تغییر غذای روز" Value="9" />
+                                        <MudListItem Text="ذخیره غذا های روز" Value="10" />
+                                    </NestedList>
+                                </MudListItem>
+                                <MudListItem Text="صفحه غذای انتخاب شده" />
+                                <MudListItem Text="صفحه گزارش">
+                                    <NestedList>
+                                        <MudListItem Text="گزارش روزانه" Value="11" />
+                                        <MudListItem Text="گزارش ماهانه" Value="12" />
+                                    </NestedList>
+                                </MudListItem>
+                                <MudListItem Text="صفحه مدیریت پنل">
+                                    <NestedList>
+                                        <MudListItem Text="قابلیت تغییر سطح دسترسی" Value="13" />
+                                        <MudListItem Text="افزودن غذا" Value="14" />
+                                        <MudListItem Text="ویرایش غذا" Value="15" />
+                                        <MudListItem Text="حذف غذا" Value="16" />
+                                        <MudListItem Text="افزودن کاربر" Value="17" />
+                                        <MudListItem Text="ویرایش کاربر" Value="18" />
+                                        <MudListItem Text="حذف کاربر" Value="19" />
+                                        <MudListItem Text="افزودن شرکت" Value="20" />
+                                        <MudListItem Text="ویرایش شرکت" Value="21" />
+                                        <MudListItem Text="حذف شرکت" Value="22" />
+                                    </NestedList>
+                                </MudListItem>
+                            
+                            <MudListItem Text="مدیریت پنل" Value="23" />
+                        </NestedList>
+                        </MudListItem>
+                </MudList>
+
+            </MudPaper>
+            </div>
+
+
+
         </MudPaper>
 
 
@@ -182,15 +286,21 @@
 </MudRTLProvider>
 
 @code {
-
+    public IReadOnlyCollection<int> testlist = [];
     public Response<List<Food>> resultFoods = new Response<List<Food>>();
     public Response<List<User>> resultUsers = new Response<List<User>>();
     public Response<List<Company>> resultCompanies = new Response<List<Company>>();
+    public UserAccess userAccess = new UserAccess();
+    private User selectedUser = new User();
+    public List<User> Users { get; set; } = new();
 
 
 
     protected override async Task OnInitializedAsync()
     {
+        resultUsers = await userServices.GetAllAsync<User>();
+        if(resultUsers.Data != null) Users = resultUsers.Data;
+        selectedUser = Users.FirstOrDefault(ui => ui.National_Code != 0) ?? Users.First();
         await GetLocalUserFromStorage();
     }
 
@@ -322,7 +432,23 @@
         }
     }
 
+    private async Task SetAccessUser()
+    {
+        try
+        {
+            foreach (var i in testlist)
+            {
+                userAccess.accessList[i] = true;
+            }
+            var res = await userServices.SetAccess(new UserAccess() { accessList = userAccess.accessList, userId = selectedUser.Id });
+            Snackbar.Add("دسترسی با موفقیت اصلاح شد", Severity.Success);
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add("اعطای دسترسی با مشکل مواجه شد" + ex.Message , Severity.Warning);
+        }
 
+    }
 
     public async Task GetLocalUserFromStorage()
     {

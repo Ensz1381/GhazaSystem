@@ -1,10 +1,11 @@
 ﻿using GhazaSystem.Api.Infrastructure.Data;
 using GhazaSystem.Api.Interfaces;
 using GhazaSystem.Api.Services;
+using GhazaSystem.Common.Data;
 using GhazaSystem.Common.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using GhazaSystem.Common.Data;
+using System;
 
 namespace GhazaSystem.Api.Controllers;
 
@@ -116,4 +117,15 @@ public class UserController(
         return ResponseBuilder.Failure<User>( );
     }
 
+    [HttpPost("setaccess")]
+    public async Task<Response<object>> SetAccess(UserAccess UA)
+    {
+        var result = await userRepository.GetByIdAsync(UA.userId);
+        var User = result.Data;
+        if (User == null) return ResponseBuilder.Failure(message: "کاربر یافت نشد");
+        User.Access = UA.accessList;
+        var update = await userRepository.UpdateAsync(User);
+        return ResponseBuilder.Success(message: update.Message!);
+
+    }
 }

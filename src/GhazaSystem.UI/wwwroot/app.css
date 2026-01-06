@@ -24,6 +24,11 @@ html, body {
 a, .btn-link {
     color: #006bb7;
 }
+.mud-list-item-icon
+{
+    width : 20px !important;
+    min-width : 20px !important;
+}
 
 .btn-primary {
     color: #fff;

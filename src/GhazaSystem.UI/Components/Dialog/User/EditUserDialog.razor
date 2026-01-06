@@ -81,6 +81,11 @@
             else Users = response.Data; ;
 
         }
+        else
+        {
+            selectedUser = Users.FirstOrDefault(ui => ui.National_Code != 0) ?? Users.First();
+        }
+
         var result = await companyservices.GetAllAsync();
         if (result.Data != null)
             companies = result.Data;

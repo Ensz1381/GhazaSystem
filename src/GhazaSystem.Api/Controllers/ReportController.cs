@@ -86,7 +86,7 @@ namespace GhazaSystem.Api.Controllers
         {
             using var workbook = new XLWorkbook();
             var sheetdailynow = workbook.AddWorksheet("لیست غذای ماهیانه");
-            var result = await RC.InMontDailyFood(10);
+            var result = await RC.InMontDailyFood(mont);
             var data = result.Data;
             int rowcount = 1;
             foreach ( var row in data!.RowMontExcelsOut!)

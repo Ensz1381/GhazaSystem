@@ -47,7 +47,8 @@
                     <!-- انتخاب ماه و سال -->
                     <MudStack Row="true" Spacing="2">
                         <MudSelect T="int"
-                                   @bind-Value="mont.MonthNumber"
+                                   @bind-Value="selectedMonth"
+                                   SelectedValuesChanged="@(()=> ChangeMont())"
                                    Label="ماه"
                                    Variant="Variant.Outlined"
                                    Dense="true"
@@ -66,16 +67,7 @@
                             <MudSelectItem Value="12">اسفند</MudSelectItem>
                         </MudSelect>
 
-                        <MudSelect T="int"
-                                   @bind-Value="selectedYear"
-                                   Label="سال"
-                                   Variant="Variant.Outlined"
-                                   Dense="true"
-                                   Style="min-width: 120px;">
-                            <MudSelectItem Value="1402">1402</MudSelectItem>
-                            <MudSelectItem Value="1403">1403</MudSelectItem>
-                            <MudSelectItem Value="1404">1404</MudSelectItem>
-                        </MudSelect>
+                        
                     </MudStack>
 
                     
@@ -146,17 +138,22 @@
                                                                Dense="false"
                                                                Disabled="@week1Locked"
                                                                AdornmentIcon="@Icons.Material.Filled.Restaurant"
-                                                               AdornmentColor="Color.Primary">
+                                                               AdornmentColor="Color.Primary"
+                                                               >
                                                         @foreach (var food in availableFoods)
                                                         {
                                                             @if (food.Date == day.GregorianDate)
                                                             {
                                                                 <MudSelectItem T="Daily_Food" Value="@food"
-                                                                           Style=" display: flex;
-                                                                                                               flex-direction: row-reverse;
-                                                                                                               padding-left:0;padding-right:0;
+                                                                            
+                                                                           Style=" display: flex;      
+                                                                            flex-direction: row-reverse;
+                                                                            padding-left:0;padding-right:0;
+                                                                                               .mud-list-item-icon {
+                                                                                                min-width:20px;
+}
                                                                                                              ">
-                                                                <MudChip T="Food" Style="width: 95%;
+                                                                <MudChip T="Food" Style="min-width: 95%;
                                                                                                                      justify-content: space-between;
                                                                                                                     ">
                                                                     <ChildContent>@food.food!.Name</ChildContent>
@@ -259,7 +256,29 @@
             }
         }
     }
+    public async Task ChangeMont()
+    {
+        mont = new CalendarMont();
+        availableFoods = new List<Daily_Food>();
+        List_Daily_FoodDTOs_User = new List<Daily_Food>();
+        resultFoods = await dailyFoodServices.GetMontAsync(selectedMonth);
+        availableFoods = resultFoods.Data!;
+        mont = psc.GetMonthCalendar(selectedMonth);
+        await GetDailyFoods();
+        StateHasChanged();
 
+    }
+
+    public string GetMultiSelectionText(List<Daily_Food> day)
+    {
+        string show = "";
+        int num = 0;
+        foreach(var item in day)
+        {
+            num++;
+        }
+        return (num > 1) ? "غذای روز انتخاب شده" : $"{num} غذا انتخاب شده";
+    }
 
     protected override async Task OnInitializedAsync()
     {
