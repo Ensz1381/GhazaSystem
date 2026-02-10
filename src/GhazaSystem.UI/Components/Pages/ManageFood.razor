@@ -35,6 +35,16 @@
                               OnClick="LoadData">
                         بروزرسانی
                     </MudButton>
+                    @if (userServices.LocalUser != null)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.ExitToApp"
+                               OnClick="UserOut"
+                               Size="Size.Small">
+                        خروج
+                    </MudButton>
+                }
                 </MudStack>
 
                 <MudDivider />
@@ -154,6 +164,7 @@
                                                     <MudSelect T="Food"
                                                                FullWidth="true"
                                                                MultiSelection="true"
+                                                               Style="min-width : 0 !important;"
                                                                SelectedValuesChanged="@((selectedFoods) => OnSelectionChanged(selectedFoods, day.GregorianDate))"
                                                                Label="انتخاب غذا"
                                                                Variant="Variant.Outlined"
@@ -167,7 +178,9 @@
                                                                            Style=" display: flex;
                                                                                                flex-direction: row-reverse;
                                                                                                padding-left:0;padding-right:0;
-                                                                                             ">
+                                                                                             "
+                                                                           
+                                                                                             >
                                                                 <MudChip T="Food" Style="width: 95%;
                                                                                                      justify-content: space-between;
                                                                                                     ">
@@ -285,7 +298,7 @@
         StateHasChanged();
     }
 
-    
+
     protected override void OnInitialized()
     {
         GetMont();
@@ -304,7 +317,7 @@
                 List_Daily_FoodDTOs.Add(new Daily_FoodDTOs() { Date = item.Date, food = item.food!, Mount = item.Mount });
             }
         }
-        
+
         StateHasChanged();
     }
 
@@ -425,5 +438,12 @@
             List_Daily_FoodDTOs.Add(DF);
         }
         StateHasChanged();
+    }
+    private async Task UserOut(MouseEventArgs args)
+    {
+        userServices.LocalUser = null;
+        await LStorage.DeleteAsync("User");
+        StateHasChanged();
+        NManager.NavigateTo(NManager.Uri, forceLoad: true);
     }
 }

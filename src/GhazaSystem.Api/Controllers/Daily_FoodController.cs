@@ -123,4 +123,5 @@ public class Daily_FoodController(
         if (response.IsSuccess == true) return ResponseBuilder.Success<List<Daily_Food>>(response.Data!);
         return ResponseBuilder.Failure<List<Daily_Food>>(message: "جواب ریپازیوتری نال بود"+response.Message);
     }
+    
 }

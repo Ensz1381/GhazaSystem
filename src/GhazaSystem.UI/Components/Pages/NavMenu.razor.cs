@@ -1,4 +1,7 @@
+using GhazaSystem.Common.Data;
+using GhazaSystem.UI.Services;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace GhazaSystem.UI.Components.Pages
 {
@@ -12,6 +15,27 @@ namespace GhazaSystem.UI.Components.Pages
         private void moseout()
         {
             _open = false;
+        }
+        public async Task GetLocalUserFromStorage()
+        {
+            try
+            {
+
+                var result = await LStorage.GetAsync<User>("User");
+                if (result.Success && result.Value != null)
+                {
+                    userServices.LocalUser = result.Value;
+                    StateHasChanged();
+                }
+                else
+                {
+                    Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);
+                    NManager.NavigateTo("/", forceLoad: true);
+                }
+            }
+            catch (Exception)
+            { NManager.NavigateTo("/", forceLoad: true); }
+
         }
 
     }

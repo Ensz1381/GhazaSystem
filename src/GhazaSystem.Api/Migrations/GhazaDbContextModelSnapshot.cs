@@ -17,7 +17,7 @@ namespace GhazaSystem.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.21")
+                .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -158,7 +158,7 @@ namespace GhazaSystem.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool[]>("Access")
+                    b.PrimitiveCollection<bool[]>("Access")
                         .IsRequired()
                         .HasColumnType("boolean[]");
 

@@ -19,5 +19,5 @@ namespace GhazaSystem.Common.DTOs.Report
     {
         public List<CellMontExcel> CellOfRowExcel {  get; set; } = new List<CellMontExcel>();
     }
-    public record CellMontExcel(string SCell , string User ,string DatePersian, DateOnly Date , int Index);
+    public record CellMontExcel(string SCell , string User ,string DatePersian, DateOnly? Date , int Index);
 }

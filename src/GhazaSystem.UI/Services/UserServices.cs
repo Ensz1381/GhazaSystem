@@ -75,6 +75,14 @@ namespace GhazaSystem.UI.Services
             return ResponseBuilder.Failure();
         }
 
+        public async Task ActiveSelectFood()
+        {
+            var result =  http.GetAsync(UserUrlApi.ActiveFood);
+        }
 
+        public async Task DesactiveSelectFood()
+        {
+            var result = await http.GetAsync(UserUrlApi.DeaactiveFood);
+        }
     }
 }

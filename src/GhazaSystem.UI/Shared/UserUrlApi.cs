@@ -8,6 +8,8 @@ public static class UserUrlApi
     public const string update = "api/User/update";
     public const string updateDailyFood = "api/User/updatedaily";
     public const string SetAccessUser = "api/User/setaccess";
+    public const string ActiveFood = "api/User/active/";
+    public const string DeaactiveFood = "api/User/desactive/";
     public static string delete (Guid id)
     {
         return $"api/User/delete/{id}";

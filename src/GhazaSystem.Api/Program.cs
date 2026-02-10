@@ -5,6 +5,7 @@ using GhazaSystem.Api.Services;
 using GhazaSystem.Common.Data;
 using GhazaSystem.Common.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 
 namespace GhazaSystem.Api
@@ -35,6 +36,7 @@ namespace GhazaSystem.Api
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
             Console.WriteLine(Directory.GetCurrentDirectory());
 
             builder.Services
@@ -47,35 +49,6 @@ namespace GhazaSystem.Api
             .AddScoped<IInfrasructureRepository<Daily_Food>, Daily_FoodRepository>();
             
             
-            //start test api 
-
-            /*
-            Console.WriteLine(Directory.GetCurrentDirectory());
-            var service = new PersianCalendarService();
-            var monthWeeks = service.GetMonthCalendar(9);
-            int weekCounter = 1;
-            foreach (var week in monthWeeks.MontWeek!)
-            {
-                Console.WriteLine($"--- هفته {weekCounter} ---");
-                foreach (var day in week.WeekDay!)
-                {
-                    if (day == null)
-                    {
-                        Console.Write("[   خالی   ] ");
-                    }
-                    else
-                    {
-                        Console.Write($"[{day.DayName} - {day.DayNumber} - {day.PersianDate} - {day.GregorianDate} - ] ");
-                        // دسترسی به میلادی: day.GregorianDate
-                    }
-                }
-                Console.WriteLine("\n");
-                weekCounter++;
-            }
-
-            */
-
-            // end test api
 
 
 
@@ -133,9 +106,14 @@ namespace GhazaSystem.Api
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwagger(e => e.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1);  
+
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ToDo API v1");
+                });
             }
+
 
             app.UseHttpsRedirection();
 

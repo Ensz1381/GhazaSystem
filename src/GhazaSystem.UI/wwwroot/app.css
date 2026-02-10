@@ -6,20 +6,28 @@ html, body {
 }
 
 @font-face {
-    font-family: "Vazirmatn-coustome";
+    font-family: "Vazirmatn";
     font-weight: 700; /* bold */
     font-style: normal;
-    src: url('fonts/Vazir-Bold.eot');
-    src: url('fonts/Vazir-Bold.eot?#iefix') format('embedded-opentype'),
-        url('fonts/Vazir-Bold.woff2') format('woff2'),
-        url('fonts/Vazir-Bold.woff') format('woff'),
-        url('fonts/Vazir-Bold.ttf') format('truetype');
+    src:url('fonts/webfonts/Vazirmatn-Bold.woff2') format('woff2'),
+        url('fonts/webfonts/Vazirmatn-Bold.ttf') format('truetype');
     font-display: swap;
 }
 .bold-vazir {
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: 'Vazirmatn', sans-serif !important;
     font-weight: 700;
 }
+:root {
+    --mud-typography-default-family: 'Vazirmatn', Tahoma !important;
+    --mud-typography-h1-family: 'Vazirmatn' !important;
+    --mud-typography-button-family: 'Vazirmatn' !important;
+    --mud-typography-body1-family: 'Vazirmatn' !important;
+}
+
+* {
+    font-family: 'Vazirmatn', Tahoma !important;
+}
+
 
 a, .btn-link {
     color: #006bb7;

@@ -1,6 +1,7 @@
 ﻿@using GhazaSystem.UI.Services
 @inject ISnackbar Snackbar
 @inject ProtectedLocalStorage LStorage
+@inject NavigationManager NManager
 @inject UserServices userServices
 <MudDialog>
 
@@ -47,6 +48,7 @@
         {
             Snackbar.Add($"{userServices.LocalUser.First_Name} {userServices.LocalUser.First_Name} با موفقیت وارد شدید.", Severity.Success);
             MudDialog.Close();
+            NManager.NavigateTo(NManager.Uri, forceLoad: true);
         }
         else
         {

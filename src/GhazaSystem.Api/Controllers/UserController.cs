@@ -48,6 +48,12 @@ public class UserController(
             First_Name = userdto.First_Name!,
             Last_Name = userdto.Last_Name!,
             National_Code = userdto.National_Code ,
+            Access = [ false, true, false, false, false, false, false, false, false, false,
+                       false, false, false, false, false, false, false, false, false, false,
+                       false, false, false, false, false, true, false, false, false, false,
+                       false, false, false, false, false, false, false, false, false, false,
+                       false, false, false, false, false, false, false, false, false, false ]
+            
         };
 
         return await userRepository.AddAsync(user);
@@ -74,6 +80,7 @@ public class UserController(
         {
             var resremove = await userRepository.SetListAsync(model);
             if (resremove.IsSuccess != true) return  ResponseBuilder.Failure(message: "حذف غذای کاربران به مشکل خورد"+resremove!.Message);
+            //انتقال عملیات ها برای رعایت کد تمیز و معماری به داخل سرویس
             //Guid guid = (Guid)model.UserId!;
             //var responce = await userRepository.GetByIdAsync(guid);
             //User user = responce.Data!;
@@ -100,7 +107,7 @@ public class UserController(
 
 
     [HttpGet("national-code/{code}")]
-    public async Task<Response<User>> GetById(long code)
+    public async Task<Response<User>> GetByCode(long code)
     {
         var result = await userRepository.GetAllAsync();
         var users = result.Data;
@@ -122,10 +129,45 @@ public class UserController(
     {
         var result = await userRepository.GetByIdAsync(UA.userId);
         var User = result.Data;
-        if (User == null) return ResponseBuilder.Failure(message: "کاربر یافت نشد");
+        if ( User == null || User.Access == null ) return ResponseBuilder.Failure(message: "کاربر یافت نشد");
         User.Access = UA.accessList;
         var update = await userRepository.UpdateAsync(User);
         return ResponseBuilder.Success(message: update.Message!);
 
+    }
+    [HttpGet("active")]
+    public async Task ActiveSelectFood()
+    {
+        var response = await userRepository.GetAllAsync();
+        var users = response.Data;
+        foreach (var user in users!)
+        {
+
+            bool[] newAccess = user.Access;
+            newAccess[8] = true;
+            newAccess[9] = true;
+            newAccess[10] = true;
+            user.Access = newAccess;
+            await userRepository.UpdateAsync(user);
+        }
+
+    }
+    [HttpGet("desactive")]
+    public async Task desActiveSelectFood()
+    {
+        var response = await userRepository.GetAllAsync();
+        var users = response.Data;
+        foreach (var user in users!)
+        {
+            if (user.Access[46] == false)
+            {
+                bool[] newAccess = user.Access;
+                newAccess[8] = false;
+                newAccess[9] = false;
+                newAccess[10] = false;
+                user.Access = newAccess;
+            }
+                await userRepository.UpdateAsync(user);
+        }
     }
 }

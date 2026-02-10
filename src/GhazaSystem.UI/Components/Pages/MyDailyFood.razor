@@ -27,19 +27,20 @@
                 <MudStack Spacing="0">
                     <MudText Typo="Typo.h5" Color="Color.Primary">
                         <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Class="ml-2" />
-                        غذای این ماه من
+                         @LoginService.LocalUser.Last_Name این ماه من
                     </MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mr-10">
                         @psc.GetPersianMontName(mont.MonthNumber) ماه @mont.YearNumber
                     </MudText>
                 </MudStack>
-                <MudStack Style="display: flex;">
+                <MudStack Style="display: flex; flex : ">
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Refresh"
                                Size="Size.Small">
                         بروزرسانی
                     </MudButton>
+                    
                     @if (LoginService.LocalUser == null)
                     {
                         <MudButton Variant="Variant.Filled"
@@ -48,6 +49,16 @@
                                    OnClick="GetUser"
                                    Size="Size.Small">
                             ورود
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.ExitToApp"
+                                   OnClick="UserOut"
+                                   Size="Size.Small">
+                            خروج
                         </MudButton>
                     }
                 </MudStack>
@@ -164,6 +175,11 @@
 
         });
         list_daily_Foods = response.Data!;
+        if (list_daily_Foods == null){
+            Snackbar.Add("شما هنوز غذایی انتخاب نکرده اید", Severity.Warning);
+            Navigation.NavigateTo("/", forceLoad: true);
+
+        }
         StateHasChanged();
     }
 
@@ -257,5 +273,11 @@
         }
     }
 
-
+    private async Task UserOut(MouseEventArgs args)
+    {
+        LoginService.LocalUser = null;
+        await LStorage.DeleteAsync("User");
+        StateHasChanged();
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
 }

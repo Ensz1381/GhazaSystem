@@ -71,13 +71,12 @@ public class ReportCreator(GhazaDbContext context)
         if (calmont != null)
         {
             var inrow = new RowExcel();
-            inrow.CellOfRowExcel.Add(new CellMontExcel("نام پرسنل","","",DateOnly.FromDateTime(DateTime.Now),1));
+            inrow.CellOfRowExcel.Add(new CellMontExcel("نام پرسنل","","",null,1));
             MontReport.Culoms++;
             int indexcount = 1;
             DateOnly lastdaily = new DateOnly();
             foreach (var daily in resultdaily)
             {
-                
                     if (daily != null )
                     {
                     if(lastdaily==daily.Date) continue;
@@ -100,7 +99,7 @@ public class ReportCreator(GhazaDbContext context)
                 if (us != null)
                 {
                     var userrow = new RowExcel();
-                    userrow.CellOfRowExcel.Add(new CellMontExcel($"{us.First_Name+" "+us.Last_Name}", "", "", DateOnly.FromDateTime(DateTime.Now), 1));
+                    userrow.CellOfRowExcel.Add(new CellMontExcel($"{us.First_Name+" "+us.Last_Name}", "", "", DateOnly.FromDateTime(DateTime.Now),1));
                     foreach (var daily in inrow.CellOfRowExcel)
                     {
                         if (us.Daily_Foods == null) continue;

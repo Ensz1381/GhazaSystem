@@ -1,4 +1,9 @@
-﻿@rendermode InteractiveServer
+﻿@using GhazaSystem.UI.Services
+@rendermode InteractiveServer
+@inject ProtectedLocalStorage LStorage
+@inject UserServices userServices
+@inject NavigationManager NManager
+@inject ISnackbar Snackbar
 
 <MudDrawer @bind-Open="@_open"
            Elevation="2"
@@ -12,25 +17,44 @@
            Class="drawer-rtl"
            Style="height: 100vh; z-index: 1300; margin-top : -64px">
 
-    <MudNavMenu Style="height: 100%; margin :0 ; ">
-        <MudNavLink Color="Color.Primary"
-                    Icon="@Icons.Material.Filled.Menu"
-                    Class="bold-vazir"
-                    Href="/"
-                    Style="height: 48px; font-weight: 600;"
-                    Match="NavLinkMatch.All">
-            غذا های این ماه
-        </MudNavLink>
+    @if (userServices.LocalUser != null)
+    {
+        
+        <MudNavMenu Style="height: 100%; margin :0 ; ">
+        @if (userServices.LocalUser.Access[1])
+            {
+                <MudNavLink Color="Color.Primary"
+                            Icon="@Icons.Material.Filled.Menu"
+                            Class="bold-vazir"
+                            Href="/"
+                            Style="height: 48px; font-weight: 600;"
+                            Match="NavLinkMatch.All">
+                    غذا های این ماه
+                </MudNavLink>
+            }
+            
 
         <MudDivider class="m-2" />
 
+    @if (userServices.LocalUser.Access[2] ||
+        userServices.LocalUser.Access[3] ||
+        userServices.LocalUser.Access[4] ||
+        userServices.LocalUser.Access[5] ||
+        userServices.LocalUser.Access[6] 
+    )
+    {
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.FilterList"
                     Href="/manage-food"
                     Match="NavLinkMatch.Prefix">
             مدیریت غذا
         </MudNavLink>
-
+    }
+    @if (userServices.LocalUser.Access[8] ||
+            userServices.LocalUser.Access[9] ||
+            userServices.LocalUser.Access[10] 
+            )
+    {
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.PlaylistAddCheck"
                     Href="/select-food"
@@ -38,29 +62,55 @@
             انتخاب غذا
         </MudNavLink>
 
-        
-
+    }
+    @if (userServices.LocalUser.Access[25])
+    {
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.PlaylistAddCheckCircle"
                     Href="/my-foods"
                     Match="NavLinkMatch.Prefix">
             غذای انتخاب شده
         </MudNavLink>
-
+    }
+    @if (userServices.LocalUser.Access[11] ||
+            userServices.LocalUser.Access[12]
+            )
+    {
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.LibraryBooks"
                     Href="/report"
                     Match="NavLinkMatch.Prefix">
             گزارش
         </MudNavLink>
-
+    }
+    @if (userServices.LocalUser.Access[13] ||
+            userServices.LocalUser.Access[14] ||
+            userServices.LocalUser.Access[15] ||
+            userServices.LocalUser.Access[16] ||
+                    userServices.LocalUser.Access[17] ||
+                    userServices.LocalUser.Access[18] ||
+                    userServices.LocalUser.Access[19] ||
+                    userServices.LocalUser.Access[20] ||
+                    userServices.LocalUser.Access[21] ||
+                    userServices.LocalUser.Access[22] ||
+                    userServices.LocalUser.Access[23] ||
+                    userServices.LocalUser.Access[24] 
+            )
+    {
         <MudNavLink Color="Color.Inherit"
                     Icon="@Icons.Material.Filled.LibraryBooks"
                     Href="/manager"
                     Match="NavLinkMatch.Prefix">
             مدیریت پنل
         </MudNavLink>
+    }
     </MudNavMenu>
+
+
+
+
+    }
+    
 </MudDrawer>
 
 <style>

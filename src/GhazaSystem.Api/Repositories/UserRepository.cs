@@ -73,7 +73,7 @@ public class UserRepository(GhazaDbContext context) : IInfrasructureRepository<U
     {
         try
         {
-            var result = await context.User.FirstOrDefaultAsync(x => x.Id == id);
+            var result = await context.User.FindAsync(id);
             return (result != null) ? ResponseBuilder.Success<User>(result) : ResponseBuilder.Failure<User>(message:"is null");
 
         }

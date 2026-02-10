@@ -28,6 +28,9 @@ services:
       - "8000:8080" # پورت 8080 کانتینر را به پورت 8000 کامپیوتر شما وصل می‌کند
     depends_on:
       - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
     #  - rabbitmq
 
 

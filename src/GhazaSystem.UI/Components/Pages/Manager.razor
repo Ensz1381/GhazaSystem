@@ -5,6 +5,9 @@
 @using GhazaSystem.UI.Components.Dialog.Food
 @using GhazaSystem.UI.Components.Dialog.User
 @using GhazaSystem.UI.Services
+@using System.Threading.Tasks
+@using GhazaSystem.UI.Shared
+@inject IJSRuntime jS
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject FoodServices foodServices
@@ -13,7 +16,7 @@
 @inject DailyFoodServices dailyFoodServices
 @inject PersianCalendarService psc
 @inject ProtectedLocalStorage LStorage
-@inject NavigationManager NManager
+@inject NavigationManager Navigation
 
 
 <PageTitle>صفحه مدیریت پنل</PageTitle>
@@ -41,6 +44,16 @@
                            Size="Size.Small">
                     بروزرسانی
                 </MudButton>
+                @if (userServices.LocalUser != null)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.ExitToApp"
+                               OnClick="UserOut"
+                               Size="Size.Small">
+                        خروج
+                    </MudButton>
+                }
             </MudStack>
 
             <MudDivider Class="m-3" />
@@ -181,13 +194,14 @@
                 </MudStack>
 
                 
-                <MudStack Spacing="3" Style="width : 20%">
+                <MudStack Spacing="3" Style="width : 20%;">
                     <MudSelect T="User"
                                @bind-Value="selectedUser"
                                Placeholder="انتخاب کنید"
                                Label="انتخاب کاربر برای ویرایش"
                                FullWidth 
                                Variant="Variant.Outlined"
+                               SelectedValuesChanged="OnSelectionChanged"
                                Adornment="Adornment.Start"
                                AdornmentIcon="@Icons.Material.Filled.Restaurant">
                         @foreach (var user in Users)
@@ -195,7 +209,86 @@
                             <MudSelectItem Value="@user">@user.First_Name</MudSelectItem>
                         }
                     </MudSelect>
+                    
 
+                </MudStack>
+                <MudStack>
+                    <MudSelect T="int"
+                               Label="انتخاب سطح دسترسی"
+                               style=" display: flex;
+                               flex-direction: row-reverse;"
+                               MultiSelection="true"
+                               @Value="انتخاب کنید"
+                               @bind-SelectedValues="accessList"
+                               Variant="Variant.Outlined"
+                               AnchorOrigin="Origin.BottomCenter"
+                               Clearable="true">
+
+                        <!-- دسترسی‌های اصلی -->
+                        <MudSelectItem Value="45">کاربر عادی</MudSelectItem>
+                        <MudSelectItem Value="46">کاربر مدیریت</MudSelectItem>
+
+
+
+                        <!-- صفحه غذای این ماه -->
+                        <MudSelectItem Value="1" Class="ps-4">
+                            <MudText Typo="Typo.caption" Color="Color.Primary">صفحه غذای این ماه:</MudText>
+                            نمایش تمام غذا ها
+                        </MudSelectItem>
+
+
+
+                        <!-- صفحه مدیریت غذا -->
+                        <MudSelectItem Value="2" Class="ps-4">
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">مدیریت غذا:</MudText>
+                            قابلیت تغییر ماه
+                        </MudSelectItem>
+                        <MudSelectItem Value="3" Class="ps-4">افزودن غذا</MudSelectItem>
+                        <MudSelectItem Value="4" Class="ps-4">ویرایش غذا</MudSelectItem>
+                        <MudSelectItem Value="5" Class="ps-4">حذف غذا</MudSelectItem>
+                        <MudSelectItem Value="6" Class="ps-4">تغییر غذای روز</MudSelectItem>
+                        <MudSelectItem Value="7" Class="ps-4">ذخیره غذا های روز</MudSelectItem>
+
+
+                        <!-- صفحه انتخاب غذا -->
+                        <MudSelectItem Value="8" Class="ps-4">
+                            <MudText Typo="Typo.caption" Color="Color.Tertiary">انتخاب غذا:</MudText>
+                            قابلیت تغییر ماه
+                        </MudSelectItem>
+                        <MudSelectItem Value="9" Class="ps-4">تغییر غذای روز</MudSelectItem>
+                        <MudSelectItem Value="10" Class="ps-4">ذخیره غذا های روز</MudSelectItem>
+
+
+                        <!-- صفحه غذای انتخاب شده -->
+                        <MudSelectItem Value="25">صفحه غذای انتخاب شده</MudSelectItem>
+
+
+
+                        <!-- صفحه گزارش -->
+                        <MudSelectItem Value="11" Class="ps-4">
+                            <MudText Typo="Typo.caption" Color="Color.Info">گزارش:</MudText>
+                            گزارش روزانه
+                        </MudSelectItem>
+                        <MudSelectItem Value="12" Class="ps-4">گزارش ماهانه</MudSelectItem>
+
+
+
+                        <!-- صفحه مدیریت پنل -->
+                        <MudSelectItem Value="13" Class="ps-4">
+                            <MudText Typo="Typo.caption" Color="Color.Warning">مدیریت پنل:</MudText>
+                            قابلیت تغییر سطح دسترسی
+                        </MudSelectItem>
+                        <MudSelectItem Value="14" Class="ps-4">افزودن غذا</MudSelectItem>
+                        <MudSelectItem Value="15" Class="ps-4">ویرایش غذا</MudSelectItem>
+                        <MudSelectItem Value="16" Class="ps-4">حذف غذا</MudSelectItem>
+                        <MudSelectItem Value="17" Class="ps-4">افزودن کاربر</MudSelectItem>
+                        <MudSelectItem Value="18" Class="ps-4">ویرایش کاربر</MudSelectItem>
+                        <MudSelectItem Value="19" Class="ps-4">حذف کاربر</MudSelectItem>
+                        <MudSelectItem Value="20" Class="ps-4">افزودن شرکت</MudSelectItem>
+                        <MudSelectItem Value="21" Class="ps-4">ویرایش شرکت</MudSelectItem>
+                        <MudSelectItem Value="22" Class="ps-4">حذف شرکت</MudSelectItem>
+
+                    </MudSelect>
                 </MudStack>
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Info"
@@ -204,89 +297,27 @@
                            OnClick="SetAccessUser">
                     ثبت سطح دسترسی کاربر
                 </MudButton>
-
-                
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Info"
+                           StartIcon="@Icons.Material.Filled.LockOpen"
+                           Size="Size.Small"
+                           OnClick="activate">
+                     فعال سازی انتخاب غذا
+                </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Info"
+                           StartIcon="@Icons.Material.Filled.LockPerson"
+                           Size="Size.Small"
+                           OnClick="desactivate">
+                     غیر فعال سازی انتخاب غذا
+                </MudButton>
             </MudStack>
-            <div id="another_unique_identifier" class="ma-0" style="height:50%;overflow: auto;">
-                <MudPaper Width="100%" Elevation="0" Class="d-flex flex-column justify-space-between py-6">
-                
-                <MudList  T="int" @bind-SelectedValues="testlist" SelectionMode="SelectionMode.MultiSelection" ReadOnly="false" CheckBoxColor="Color.Tertiary">
-                    <MudListSubheader>
-                        انتخاب سطح دسترسی
-                    </MudListSubheader>
-
-                    <MudListItem Text="کاربر عادی" Value= "45" />
-                    <MudListItem Text="کاربر مدیریت" Value="46" />
-                    <MudListItem Text="دسترسی های کاربران به صفحات">
-                        <NestedList>
-                                <MudListItem Text="صفحه غذای این ماه">
-                                    <NestedList>
-                                        <MudListItem Text="نمایش تمام غذا ها" Value="1" />
-                                    </NestedList>
-                                </MudListItem>
-                                <MudListItem Text="صفحه مدیریت غذا">
-                                    <NestedList>
-                                        <MudListItem Text="قابلیت تغییر ماه" Value="2" />
-                                        <MudListItem Text="افزودن غذا" Value="3" />
-                                        <MudListItem Text="ویرایش غذا" Value="4" />
-                                        <MudListItem Text="حذف غذا" Value="5" />
-                                        <MudListItem Text="تغییر غذای روز" Value="6" />
-                                        <MudListItem Text="ذخیره غذا های روز" Value="7" />
-                                    </NestedList>
-                                </MudListItem>
-                                <MudListItem Text="صفحه انتخاب غذا">
-                                    <NestedList>
-                                        <MudListItem Text="قابلیت تغییر ماه" Value="8" />
-                                        <MudListItem Text="تغییر غذای روز" Value="9" />
-                                        <MudListItem Text="ذخیره غذا های روز" Value="10" />
-                                    </NestedList>
-                                </MudListItem>
-                                <MudListItem Text="صفحه غذای انتخاب شده" />
-                                <MudListItem Text="صفحه گزارش">
-                                    <NestedList>
-                                        <MudListItem Text="گزارش روزانه" Value="11" />
-                                        <MudListItem Text="گزارش ماهانه" Value="12" />
-                                    </NestedList>
-                                </MudListItem>
-                                <MudListItem Text="صفحه مدیریت پنل">
-                                    <NestedList>
-                                        <MudListItem Text="قابلیت تغییر سطح دسترسی" Value="13" />
-                                        <MudListItem Text="افزودن غذا" Value="14" />
-                                        <MudListItem Text="ویرایش غذا" Value="15" />
-                                        <MudListItem Text="حذف غذا" Value="16" />
-                                        <MudListItem Text="افزودن کاربر" Value="17" />
-                                        <MudListItem Text="ویرایش کاربر" Value="18" />
-                                        <MudListItem Text="حذف کاربر" Value="19" />
-                                        <MudListItem Text="افزودن شرکت" Value="20" />
-                                        <MudListItem Text="ویرایش شرکت" Value="21" />
-                                        <MudListItem Text="حذف شرکت" Value="22" />
-                                    </NestedList>
-                                </MudListItem>
-                            
-                            <MudListItem Text="مدیریت پنل" Value="23" />
-                        </NestedList>
-                        </MudListItem>
-                </MudList>
-
-            </MudPaper>
-            </div>
-
-
-
         </MudPaper>
-
-
-
-
     </div>
-
-
-
-
 </MudRTLProvider>
 
 @code {
-    public IReadOnlyCollection<int> testlist = [];
+    public IEnumerable<int> accessList = [];
     public Response<List<Food>> resultFoods = new Response<List<Food>>();
     public Response<List<User>> resultUsers = new Response<List<User>>();
     public Response<List<Company>> resultCompanies = new Response<List<Company>>();
@@ -302,6 +333,7 @@
         if(resultUsers.Data != null) Users = resultUsers.Data;
         selectedUser = Users.FirstOrDefault(ui => ui.National_Code != 0) ?? Users.First();
         await GetLocalUserFromStorage();
+        await OnSelectionChanged();
     }
 
 
@@ -436,7 +468,7 @@
     {
         try
         {
-            foreach (var i in testlist)
+            foreach (var i in accessList)
             {
                 userAccess.accessList[i] = true;
             }
@@ -464,11 +496,51 @@
             else
             {
                 Snackbar.Add("مجددا باید وارد سیستم شوید", Severity.Error);
-                NManager.NavigateTo("/", forceLoad: true);
+                Navigation.NavigateTo("/", forceLoad: true);
             }
         }
         catch (Exception)
-        { NManager.NavigateTo("/", forceLoad: true); }
+        { Navigation.NavigateTo("/", forceLoad: true); }
+
+    }
+    private async Task activate(MouseEventArgs args)
+    {
+        var res = jS.InvokeVoidAsync(UserUrlApi.ActiveFood);
+        await userServices.ActiveSelectFood();
+    }
+    private async Task desactivate(MouseEventArgs args)
+    {
+        var res = jS.InvokeVoidAsync(UserUrlApi.DeaactiveFood);
+        await userServices.DesactiveSelectFood();
+    }
+
+    private async Task UserOut(MouseEventArgs args)
+    {
+        userServices.LocalUser = null;
+        await LStorage.DeleteAsync("User");
+        StateHasChanged();
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+    private async Task OnSelectionChanged()
+    {
+        accessList = [];
+        StateHasChanged();
+        var res = await userServices.GetByIdAsync<User>(selectedUser.Id);
+        if (res.Data != null)
+        {
+            
+            int num = 0;
+            foreach (bool teu in res.Data.Access)
+            {
+                if (teu == true)
+                {
+                    accessList = accessList.Append(num);
+                }
+                num++;
+            }
+
+        }
+        StateHasChanged();
 
     }
 }

@@ -39,6 +39,7 @@
                           Size="Size.Small">
                     بروزرسانی
                 </MudButton>
+                    
                 @if (LoginService.LocalUser == null)
                 {
                     <MudButton Variant="Variant.Filled"
@@ -49,6 +50,16 @@
                         ورود
                     </MudButton>
                 }
+                else
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Error"
+                                   StartIcon="@Icons.Material.Filled.ExitToApp"
+                                   OnClick="UserOut"
+                                   Size="Size.Small">
+                            خروج
+                        </MudButton>
+                    }
                 </MudStack>
             </MudStack>
         </MudPaper>
@@ -251,5 +262,11 @@
         }
     }
 
-
+    private async Task UserOut(MouseEventArgs args)
+    {
+        LoginService.LocalUser = null;
+        await LStorage.DeleteAsync("User");
+        StateHasChanged();
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
 }
